@@ -72,6 +72,11 @@ async function runFullStackServer() {
     res.json({ success: true, message: "SmartSwap fullstack engine operational." });
   });
 
+  // Live prices HTTP fallback endpoint
+  app.get("/api/prices", (req, res) => {
+    res.json({ success: true, data: dbStore.getPrices() });
+  });
+
   // Authentication API
   app.post("/api/auth/register", register);
   app.post("/api/auth/login", login);

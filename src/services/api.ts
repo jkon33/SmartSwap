@@ -1,4 +1,23 @@
-const API_BASE = "/api";
+const getApiBase = () => {
+  // 1. Explicitly check Vite env variable if provided
+  const envUrl = (import.meta as any).env.VITE_API_URL;
+  if (envUrl) {
+    return envUrl;
+  }
+
+  // 2. Auto-detect Vercel preview/production deployments
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host.includes("vercel.app") || host.includes("vercel")) {
+      return "https://smartswap-xui6.onrender.com/api";
+    }
+  }
+
+  // 3. Fallback to default relative path
+  return "/api";
+};
+
+const API_BASE = getApiBase();
 
 function getHeaders() {
   const token = localStorage.getItem("smartswap_token");
@@ -71,6 +90,10 @@ export const api = {
   },
 
   swap: {
+    async getPrices(): Promise<any[]> {
+      return request("/prices");
+    },
+
     async getQuote(fromCurrency: string, toCurrency: string, amount: number): Promise<any> {
       return request(`/swap/quote?fromCurrency=${fromCurrency}&toCurrency=${toCurrency}&amount=${amount}`);
     },
