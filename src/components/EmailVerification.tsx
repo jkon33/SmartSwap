@@ -139,15 +139,9 @@ export default function EmailVerification() {
               </button>
             </div>
 
-            {/* Developer Assistive Sandbox Mode Helper */}
-            <div className="w-full bg-amber-50 border border-amber-150 rounded-xl p-4 text-xs text-amber-800 space-y-2 leading-relaxed">
-              <div className="font-bold flex items-center space-x-1">
-                <span>⚡ Sandbox Assistive Mode</span>
-              </div>
-              <p>
-                Email delivery is fully functional in background mode. If you do not have SMTP configured or cannot check your mailbox, check your <strong>applet terminal console logs</strong> to view the compiled email and your <strong>6-digit OTP code</strong>!
-              </p>
-            </div>
+            <p className="text-xs text-gray-400 text-center font-medium font-sans mt-2">
+              Check your mail for your 6-digit OTP code!
+            </p>
           </div>
         </div>
       </div>

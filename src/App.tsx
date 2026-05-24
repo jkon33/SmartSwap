@@ -67,7 +67,7 @@ function HomeLanding() {
       <div className="mx-auto max-w-4xl text-center space-y-6 px-4">
         <span className="inline-flex items-center space-x-1 rounded-full bg-blue-50 border border-blue-150 px-3 py-1 text-xs font-semibold text-blue-700">
           <Sparkles className="h-3.5 w-3.5 inline text-blue-600 animate-spin" />
-          <span>SmartSwap Sandbox 2026</span>
+          <span>Instant Multi-Asset Smart Swapping Platform</span>
         </span>
 
         <h1 className="font-sans text-4xl font-extrabold tracking-tight text-gray-900 sm:text-6xl select-none leading-none">
@@ -96,14 +96,14 @@ function HomeLanding() {
                 to="/register"
                 className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition flex items-center space-x-1.5"
               >
-                <span>Register Demo Account</span>
+                <span>Register an Account</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/login"
                 className="rounded-xl border border-gray-250 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
               >
-                Configure Sandbox Quick-Sign
+                Sign In
               </Link>
             </>
           )}
