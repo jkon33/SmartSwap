@@ -134,3 +134,88 @@ export async function syncPrices(req: any, res: Response): Promise<void> {
     res.status(500).json({ success: false, message: "Price synchronization failed." });
   }
 }
+
+export function getAssetsList(req: any, res: Response): void {
+  try {
+    const assets = dbStore.getAssets();
+    res.status(200).json({
+      success: true,
+      data: assets,
+    });
+  } catch (error: any) {
+    console.error("Get Assets Error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch supported assets." });
+  }
+}
+
+export function addAsset(req: any, res: Response): void {
+  try {
+    const { code, name, type, rateToUSD, iconBg } = req.body;
+
+    if (!code || !name || !type || rateToUSD === undefined) {
+      res.status(400).json({ success: false, message: "Missing required fields: code, name, type, rateToUSD" });
+      return;
+    }
+
+    if (!["crypto", "fiat"].includes(type)) {
+      res.status(400).json({ success: false, message: "Type must be 'crypto' or 'fiat'" });
+      return;
+    }
+
+    const existing = dbStore.getAssets().find(a => a.code.toUpperCase() === code.trim().toUpperCase());
+    if (existing) {
+      res.status(400).json({ success: false, message: `An asset with code ${code.toUpperCase()} already exists.` });
+      return;
+    }
+
+    const newAsset = dbStore.createAsset({
+      code: code.trim().toUpperCase(),
+      name: name.trim(),
+      type,
+      rateToUSD: Number(rateToUSD),
+      iconBg: iconBg || "bg-slate-100 text-slate-600 border-slate-200"
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `${type === "crypto" ? "Cryptocurrency" : "Fiat currency"} ${code.toUpperCase()} successfully added!`,
+      data: newAsset
+    });
+  } catch (error: any) {
+    console.error("Admin Add Asset Error:", error);
+    res.status(500).json({ success: false, message: "Failed to add asset." });
+  }
+}
+
+export function updateAssetDetails(req: any, res: Response): void {
+  try {
+    const { code } = req.params;
+    const { name, isActive, rateToUSD, iconBg } = req.body;
+
+    if (!code) {
+      res.status(400).json({ success: false, message: "Missing asset code." });
+      return;
+    }
+
+    const updated = dbStore.updateAsset(code, {
+      ...(name !== undefined && { name: name.trim() }),
+      ...(isActive !== undefined && { isActive: Boolean(isActive) }),
+      ...(rateToUSD !== undefined && { rateToUSD: Number(rateToUSD) }),
+      ...(iconBg !== undefined && { iconBg: iconBg.trim() })
+    });
+
+    if (!updated) {
+      res.status(404).json({ success: false, message: `Asset ${code.toUpperCase()} not found.` });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Asset ${code.toUpperCase()} successfully updated!`,
+      data: updated
+    });
+  } catch (error: any) {
+    console.error("Admin Update Asset Error:", error);
+    res.status(500).json({ success: false, message: "Failed to update asset." });
+  }
+}

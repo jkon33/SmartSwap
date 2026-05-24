@@ -66,10 +66,20 @@ const PriceSchema = new mongoose.Schema({
   lastUpdated: { type: String, required: true }
 }, { strict: false });
 
+const AssetSchema = new mongoose.Schema({
+  code: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  type: { type: String, enum: ["crypto", "fiat"], required: true },
+  isActive: { type: Boolean, default: true },
+  rateToUSD: { type: Number, required: true },
+  iconBg: { type: String }
+}, { strict: false });
+
 export const UserModel = mongoose.models.User || mongoose.model("User", UserSchema);
 export const TransactionModel = mongoose.models.Transaction || mongoose.model("Transaction", TransactionSchema);
 export const DepositDetailModel = mongoose.models.DepositDetail || mongoose.model("DepositDetail", DepositDetailSchema);
 export const PriceModel = mongoose.models.Price || mongoose.model("Price", PriceSchema);
+export const AssetModel = mongoose.models.Asset || mongoose.model("Asset", AssetSchema);
 
 const DB_DIR = path.join(process.cwd(), "data");
 const DB_FILE = path.join(DB_DIR, "db.json");
@@ -134,11 +144,21 @@ export interface Price {
   lastUpdated: string;
 }
 
+export interface Asset {
+  code: string;
+  name: string;
+  type: "crypto" | "fiat";
+  isActive: boolean;
+  rateToUSD: number;
+  iconBg?: string;
+}
+
 interface DatabaseSchema {
   users: User[];
   transactions: Transaction[];
   depositDetails: DepositDetail[];
   prices: Price[];
+  assets: Asset[];
 }
 
 class DbStore {
@@ -147,6 +167,7 @@ class DbStore {
     transactions: [],
     depositDetails: [],
     prices: [],
+    assets: [],
   };
 
   constructor() {
@@ -165,6 +186,21 @@ class DbStore {
       } else {
         this.seedInitialData();
       }
+
+      // Self-heal/seed assets array if missing or empty
+      if (!this.data.assets || this.data.assets.length === 0) {
+        this.data.assets = [
+          { code: "BTC", name: "Bitcoin", type: "crypto", isActive: true, rateToUSD: 68450.00, iconBg: "bg-amber-100 text-amber-600 border-amber-200" },
+          { code: "ETH", name: "Ethereum", type: "crypto", isActive: true, rateToUSD: 3450.00, iconBg: "bg-indigo-100 text-indigo-600 border-indigo-200" },
+          { code: "SOL", name: "Solana", type: "crypto", isActive: true, rateToUSD: 168.50, iconBg: "bg-purple-100 text-purple-600 border-purple-200" },
+          { code: "USDT", name: "Tether USD", type: "crypto", isActive: true, rateToUSD: 1.00, iconBg: "bg-teal-100 text-teal-600 border-teal-200" },
+          { code: "USD", name: "US Dollar", type: "fiat", isActive: true, rateToUSD: 1.00, iconBg: "bg-emerald-100 text-emerald-600 border-emerald-200" },
+          { code: "EUR", name: "Euro Coin", type: "fiat", isActive: true, rateToUSD: 1.087, iconBg: "bg-blue-100 text-blue-600 border-blue-200" },
+          { code: "GBP", name: "British Pound", type: "fiat", isActive: true, rateToUSD: 1.266, iconBg: "bg-rose-100 text-rose-600 border-rose-200" }
+        ];
+        this.saveToDisk();
+      }
+
       this.ensureDefaultUsers();
     } catch (err) {
       console.error("Error initializing Database File:", err);
@@ -437,11 +473,22 @@ class DbStore {
       { currencyPair: "USD/GBP", rate: 0.79, lastUpdated: new Date().toISOString() },
     ];
 
+    const initialAssets: Asset[] = [
+      { code: "BTC", name: "Bitcoin", type: "crypto", isActive: true, rateToUSD: 68450.00, iconBg: "bg-amber-100 text-amber-600 border-amber-200" },
+      { code: "ETH", name: "Ethereum", type: "crypto", isActive: true, rateToUSD: 3450.00, iconBg: "bg-indigo-100 text-indigo-600 border-indigo-200" },
+      { code: "SOL", name: "Solana", type: "crypto", isActive: true, rateToUSD: 168.50, iconBg: "bg-purple-100 text-purple-600 border-purple-200" },
+      { code: "USDT", name: "Tether USD", type: "crypto", isActive: true, rateToUSD: 1.00, iconBg: "bg-teal-100 text-teal-600 border-teal-200" },
+      { code: "USD", name: "US Dollar", type: "fiat", isActive: true, rateToUSD: 1.00, iconBg: "bg-emerald-100 text-emerald-600 border-emerald-200" },
+      { code: "EUR", name: "Euro Coin", type: "fiat", isActive: true, rateToUSD: 1.087, iconBg: "bg-blue-100 text-blue-600 border-blue-200" },
+      { code: "GBP", name: "British Pound", type: "fiat", isActive: true, rateToUSD: 1.266, iconBg: "bg-rose-100 text-rose-600 border-rose-200" }
+    ];
+
     this.data = {
       users: initialUsers,
       transactions: [],
       depositDetails: initialDepositDetails,
       prices: initialPrices,
+      assets: initialAssets,
     };
 
     this.saveToDisk();
@@ -570,6 +617,25 @@ class DbStore {
         }
       }
 
+      // 5. Sync Assets
+      const mongoAssets = await (AssetModel as any).find({}).lean();
+      if (mongoAssets && mongoAssets.length > 0) {
+        console.log(`Loaded ${mongoAssets.length} assets from MongoDB.`);
+        this.data.assets = mongoAssets.map((a: any) => ({
+          code: a.code,
+          name: a.name,
+          type: a.type,
+          isActive: a.isActive !== false,
+          rateToUSD: Number(a.rateToUSD),
+          iconBg: a.iconBg,
+        }));
+      } else {
+        console.log("MongoDB has no assets. Seeding active assets to MongoDB...");
+        for (const a of this.data.assets) {
+          await AssetModel.create(a);
+        }
+      }
+
 
       this.saveToDisk();
       console.log("Local Database Store fully aligned and synchronised with MongoDB Atlas!");
@@ -580,18 +646,51 @@ class DbStore {
 
   // --- Users CRUD ---
   getUsers(): User[] {
+    const assets = this.getAssets();
+    this.data.users.forEach((u) => {
+      if (u && u.balances) {
+        assets.forEach((a) => {
+          if (u.balances[a.code] === undefined) {
+            u.balances[a.code] = 0;
+          }
+        });
+      }
+    });
     return this.data.users;
   }
 
   getUserById(id: string): User | undefined {
-    return this.data.users.find((u) => u.id === id);
+    const user = this.data.users.find((u) => u.id === id);
+    if (user && user.balances) {
+      const assets = this.getAssets();
+      assets.forEach((a) => {
+        if (user.balances[a.code] === undefined) {
+          user.balances[a.code] = 0;
+        }
+      });
+    }
+    return user;
   }
 
   getUserByEmail(email: string): User | undefined {
-    return this.data.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    const user = this.data.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (user && user.balances) {
+      const assets = this.getAssets();
+      assets.forEach((a) => {
+        if (user.balances[a.code] === undefined) {
+          user.balances[a.code] = 0;
+        }
+      });
+    }
+    return user;
   }
 
   createUser(user: Omit<User, "id" | "createdAt" | "balances" | "cryptoWallets" | "bankAccounts">): User {
+    const initialBalances: Record<string, number> = {};
+    this.getAssets().forEach((a) => {
+      initialBalances[a.code] = 0;
+    });
+
     const newUser: User = {
       ...user,
       id: "usr_" + Math.random().toString(36).substr(2, 9),
@@ -600,15 +699,7 @@ class DbStore {
       emailVerificationToken: Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11),
       cryptoWallets: [],
       bankAccounts: [],
-      balances: {
-        BTC: 0,
-        ETH: 0,
-        USDT: 0,
-        SOL: 0,
-        USD: 0,
-        EUR: 0,
-        GBP: 0,
-      },
+      balances: initialBalances,
       createdAt: new Date().toISOString(),
     };
     this.data.users.push(newUser);
@@ -785,6 +876,66 @@ class DbStore {
         { upsert: true }
       ).catch((err) => console.error("Error syncing live spot rates to Mongo:", err));
     }
+  }
+
+  // --- Assets CRUD ---
+  getAssets(): Asset[] {
+    if (!this.data.assets) {
+      this.data.assets = [];
+    }
+    return this.data.assets;
+  }
+
+  createAsset(asset: Omit<Asset, "isActive"> & { isActive?: boolean }): Asset {
+    if (!this.data.assets) {
+      this.data.assets = [];
+    }
+    const newAsset: Asset = {
+      ...asset,
+      isActive: asset.isActive !== false,
+      iconBg: asset.iconBg || "bg-slate-100 text-slate-600 border-slate-200"
+    };
+    this.data.assets.push(newAsset);
+    
+    // Auto-create/update price point for code/USD so conversions work immediately!
+    this.updatePrice(`${newAsset.code}/USD`, newAsset.rateToUSD);
+
+    this.saveToDisk();
+
+    // Mongo write-through
+    if (mongoose.connection.readyState === 1) {
+      AssetModel.create(newAsset).catch((err) =>
+        console.error("Error creating asset in Mongo:", err)
+      );
+    }
+
+    return newAsset;
+  }
+
+  updateAsset(code: string, updates: Partial<Asset>): Asset | undefined {
+    if (!this.data.assets) return undefined;
+    const index = this.data.assets.findIndex((a) => a.code.toUpperCase() === code.toUpperCase());
+    if (index === -1) return undefined;
+
+    this.data.assets[index] = {
+      ...this.data.assets[index],
+      ...updates,
+    };
+
+    if (updates.rateToUSD !== undefined) {
+      this.updatePrice(`${code.toUpperCase()}/USD`, updates.rateToUSD);
+    }
+
+    this.saveToDisk();
+
+    // Mongo write-through
+    if (mongoose.connection.readyState === 1) {
+      AssetModel.updateOne({ code: code.toUpperCase() }, { $set: updates }).catch((err) =>
+        console.error("Error updating asset in Mongo:", err)
+      );
+    }
+
+    return this.data.assets[index];
   }
 
 }

@@ -9,10 +9,10 @@ export default function SwapCard({ onSuccess }: { onSuccess?: () => void }) {
   const { user, refreshMe } = useAuth();
   const { calculateRate } = useRealtimePrices();
 
-  // Currencies list
-  const cryptoList = ["BTC", "ETH", "USDT", "SOL"];
-  const fiatList = ["USD", "EUR", "GBP"];
-  const allCurrencies = [...cryptoList, ...fiatList];
+  // Currencies list state with defaults as fallbacks
+  const [cryptoList, setCryptoList] = useState<string[]>(["BTC", "ETH", "USDT", "SOL"]);
+  const [fiatList, setFiatList] = useState<string[]>(["USD", "EUR", "GBP"]);
+  const [allCurrencies, setAllCurrencies] = useState<string[]>(["BTC", "ETH", "USDT", "SOL", "USD", "EUR", "GBP"]);
 
   // State
   const [fromCur, setFromCur] = useState("USDT");
@@ -27,6 +27,24 @@ export default function SwapCard({ onSuccess }: { onSuccess?: () => void }) {
   
   // Confirmed Tx receipt overlay state
   const [activeReceipt, setActiveReceipt] = useState<any | null>(null);
+
+  // Load swappable active assets dynamically
+  useEffect(() => {
+    const loadAssetsList = async () => {
+      try {
+        const assets = await api.assets.list();
+        const activeAssets = assets.filter((a: any) => a.isActive);
+        const cryptos = activeAssets.filter((a: any) => a.type === "crypto").map((a: any) => a.code);
+        const fiats = activeAssets.filter((a: any) => a.type === "fiat").map((a: any) => a.code);
+        setCryptoList(cryptos);
+        setFiatList(fiats);
+        setAllCurrencies(activeAssets.map((a: any) => a.code));
+      } catch (err) {
+        console.error("Error loading swappable currencies:", err);
+      }
+    };
+    loadAssetsList();
+  }, []);
 
   // Calculate live conversion whenever currency selectors or fromAmount changes
   useEffect(() => {

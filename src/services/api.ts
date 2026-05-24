@@ -124,6 +124,12 @@ export const api = {
     },
   },
 
+  assets: {
+    async list(): Promise<any[]> {
+      return request("/assets");
+    },
+  },
+
   admin: {
     async getAllUsers(): Promise<any[]> {
       return request("/admin/users");
@@ -157,6 +163,20 @@ export const api = {
     async syncPrices(): Promise<any[]> {
       return request("/admin/sync-prices", {
         method: "POST",
+      });
+    },
+
+    async addAsset(code: string, name: string, type: "crypto" | "fiat", rateToUSD: number, iconBg?: string): Promise<any> {
+      return request("/admin/assets", {
+        method: "POST",
+        body: JSON.stringify({ code, name, type, rateToUSD, iconBg }),
+      });
+    },
+
+    async updateAsset(code: string, updates: { name?: string; isActive?: boolean; rateToUSD?: number; iconBg?: string }): Promise<any> {
+      return request(`/admin/assets/${code}`, {
+        method: "POST",
+        body: JSON.stringify(updates),
       });
     },
   },

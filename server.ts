@@ -20,6 +20,9 @@ import {
   addDepositDetail,
   updateDepositDetailStatus,
   syncPrices,
+  getAssetsList,
+  addAsset,
+  updateAssetDetails,
 } from "./server/adminController";
 
 // Middlewares
@@ -96,12 +99,15 @@ async function runFullStackServer() {
   app.get("/api/swap/history", authMiddleware as any, getUserTransactions as any);
 
   // Administrative Control API
+  app.get("/api/assets", authMiddleware as any, getAssetsList as any);
   app.get("/api/admin/users", adminMiddleware as any, getAllUsers as any);
   app.get("/api/admin/transactions", adminMiddleware as any, getAllTransactions as any);
   app.post("/api/admin/transactions/:id/status", adminMiddleware as any, updateTransactionStatus as any);
   app.post("/api/admin/deposit", adminMiddleware as any, addDepositDetail as any);
   app.post("/api/admin/deposit/:id/status", adminMiddleware as any, updateDepositDetailStatus as any);
   app.post("/api/admin/sync-prices", adminMiddleware as any, syncPrices as any);
+  app.post("/api/admin/assets", adminMiddleware as any, addAsset as any);
+  app.post("/api/admin/assets/:code", adminMiddleware as any, updateAssetDetails as any);
 
   // --- END API ROUTING SECTION ---
 

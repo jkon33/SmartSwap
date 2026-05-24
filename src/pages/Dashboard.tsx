@@ -26,6 +26,27 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
   const [reloading, setReloading] = useState(false);
+  const [assets, setAssets] = useState<any[]>([]);
+
+  const fetchAssets = async () => {
+    try {
+      const data = await api.assets.list();
+      // Keep only active assets
+      setAssets(data.filter((a: any) => a.isActive));
+    } catch (err) {
+      console.error("Failed to load assets list:", err);
+      // Fallback
+      setAssets([
+        { code: "BTC", name: "Bitcoin", iconBg: "bg-amber-100 text-amber-600 border-amber-200" },
+        { code: "ETH", name: "Ethereum", iconBg: "bg-indigo-100 text-indigo-600 border-indigo-200" },
+        { code: "SOL", name: "Solana", iconBg: "bg-purple-100 text-purple-600 border-purple-200" },
+        { code: "USDT", name: "Tether USD", iconBg: "bg-teal-100 text-teal-600 border-teal-200" },
+        { code: "USD", name: "US Dollar", iconBg: "bg-emerald-100 text-emerald-600 border-emerald-200" },
+        { code: "EUR", name: "Euro Coin", iconBg: "bg-blue-100 text-blue-600 border-blue-200" },
+        { code: "GBP", name: "British Pound", iconBg: "bg-rose-100 text-rose-600 border-rose-200" },
+      ]);
+    }
+  };
 
   const fetchTxHistory = async () => {
     try {
@@ -40,6 +61,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user) {
+      fetchAssets();
       fetchTxHistory();
     }
   }, [user]);
@@ -48,6 +70,7 @@ export default function Dashboard() {
     setReloading(true);
     try {
       await refreshMe();
+      await fetchAssets();
       await fetchTxHistory();
       toast.success("Accounts refreshed of current states!");
     } catch (err) {
@@ -74,7 +97,7 @@ export default function Dashboard() {
   const roundedNetWorth = getSimulatedPortfolioValue();
 
   // List of active currencies styled card deck
-  const assetsSchema = [
+  const assetsSchema = assets.length > 0 ? assets : [
     { code: "BTC", name: "Bitcoin", iconBg: "bg-amber-100 text-amber-600 border-amber-200" },
     { code: "ETH", name: "Ethereum", iconBg: "bg-indigo-100 text-indigo-600 border-indigo-200" },
     { code: "SOL", name: "Solana", iconBg: "bg-purple-100 text-purple-600 border-purple-200" },

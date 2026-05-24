@@ -17,28 +17,24 @@ export function calculateSwapRate(fromCur: string, toCur: string): number {
   
   // Helper to get rate in USD (i.e., How many USD is 1 unit of this currency)
   const getUSDValue = (currency: string): number => {
-    if (currency === "USD") return 1.0;
+    const currencyUpper = currency.toUpperCase();
+    if (currencyUpper === "USD") return 1.0;
     
-    if (currency === "BTC") {
-      return prices.find((p) => p.currencyPair === "BTC/USD")?.rate || 68450;
+    const directPair = prices.find((p) => p.currencyPair === `${currencyUpper}/USD`);
+    if (directPair) {
+      return directPair.rate;
     }
-    if (currency === "ETH") {
-      return prices.find((p) => p.currencyPair === "ETH/USD")?.rate || 3450;
+
+    const inversePair = prices.find((p) => p.currencyPair === `USD/${currencyUpper}`);
+    if (inversePair) {
+      return 1.0 / inversePair.rate;
     }
-    if (currency === "SOL") {
-      return prices.find((p) => p.currencyPair === "SOL/USD")?.rate || 168.5;
+
+    const asset = dbStore.getAssets().find(a => a.code.toUpperCase() === currencyUpper);
+    if (asset) {
+      return asset.rateToUSD;
     }
-    if (currency === "USDT") {
-      return prices.find((p) => p.currencyPair === "USDT/USD")?.rate || 1.0;
-    }
-    if (currency === "EUR") {
-      const usdEur = prices.find((p) => p.currencyPair === "USD/EUR")?.rate || 0.92;
-      return 1.0 / usdEur;
-    }
-    if (currency === "GBP") {
-      const usdGbp = prices.find((p) => p.currencyPair === "USD/GBP")?.rate || 0.79;
-      return 1.0 / usdGbp;
-    }
+
     return 1.0;
   };
 
@@ -47,30 +43,24 @@ export function calculateSwapRate(fromCur: string, toCur: string): number {
 
   // Convert that USD amount to toCur
   const usdToCurrencyRate = (currency: string): number => {
-    if (currency === "USD") return 1.0;
+    const currencyUpper = currency.toUpperCase();
+    if (currencyUpper === "USD") return 1.0;
     
-    if (currency === "BTC") {
-      const btcUsd = prices.find((p) => p.currencyPair === "BTC/USD")?.rate || 68450;
-      return 1.0 / btcUsd;
+    const directPair = prices.find((p) => p.currencyPair === `${currencyUpper}/USD`);
+    if (directPair) {
+      return 1.0 / directPair.rate;
     }
-    if (currency === "ETH") {
-      const ethUsd = prices.find((p) => p.currencyPair === "ETH/USD")?.rate || 3450;
-      return 1.0 / ethUsd;
+
+    const inversePair = prices.find((p) => p.currencyPair === `USD/${currencyUpper}`);
+    if (inversePair) {
+      return inversePair.rate;
     }
-    if (currency === "SOL") {
-      const solUsd = prices.find((p) => p.currencyPair === "SOL/USD")?.rate || 168.5;
-      return 1.0 / solUsd;
+
+    const asset = dbStore.getAssets().find(a => a.code.toUpperCase() === currencyUpper);
+    if (asset) {
+      return 1.0 / asset.rateToUSD;
     }
-    if (currency === "USDT") {
-      const usdtUsd = prices.find((p) => p.currencyPair === "USDT/USD")?.rate || 1.0;
-      return 1.0 / usdtUsd;
-    }
-    if (currency === "EUR") {
-      return prices.find((p) => p.currencyPair === "USD/EUR")?.rate || 0.92;
-    }
-    if (currency === "GBP") {
-      return prices.find((p) => p.currencyPair === "USD/GBP")?.rate || 0.79;
-    }
+
     return 1.0;
   };
 
@@ -81,11 +71,13 @@ export function calculateSwapRate(fromCur: string, toCur: string): number {
 // Tick simulated price changes
 export function simulatePriceTick() {
   const prices = dbStore.getPrices();
+  const assets = dbStore.getAssets();
 
   prices.forEach((pair) => {
-    // Determine fluctuation range based on asset class (crypto more volatile than fiat)
-    const isCrypto = pair.currencyPair.startsWith("BTC") || pair.currencyPair.startsWith("ETH") || pair.currencyPair.startsWith("SOL");
-    const volatility = isCrypto ? 0.0015 : 0.0003; // 0.15% max for crypto, 0.03% max for fiat
+    const baseCode = pair.currencyPair.split("/")[0];
+    const asset = assets.find(a => a.code.toUpperCase() === baseCode.toUpperCase());
+    const isCrypto = asset ? asset.type === "crypto" : (pair.currencyPair.startsWith("BTC") || pair.currencyPair.startsWith("ETH") || pair.currencyPair.startsWith("SOL"));
+    const volatility = isCrypto ? 0.0015 : 0.0003;
     
     const direction = Math.random() > 0.48 ? 1 : -1; // slight upward drift
     const changePercent = Math.random() * volatility;

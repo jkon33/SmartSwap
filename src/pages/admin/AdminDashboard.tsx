@@ -27,11 +27,12 @@ export default function AdminDashboard() {
   const { prices, calculateRate } = useRealtimePrices();
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<"transactions" | "traders" | "deposits">("transactions");
+  const [activeTab, setActiveTab] = useState<"transactions" | "traders" | "deposits" | "assets">("transactions");
 
   // Admin audit lists
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allTransactions, setAllTransactions] = useState<any[]>([]);
+  const [assets, setAssets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Syncing / Updating states
@@ -44,6 +45,14 @@ export default function AdminDashboard() {
   const [depositAddress, setDepositAddress] = useState("");
   const [isSubmittingDeposit, setIsSubmittingDeposit] = useState(false);
 
+  // New Asset Form State
+  const [assetCode, setAssetCode] = useState("");
+  const [assetName, setAssetName] = useState("");
+  const [assetType, setAssetType] = useState<"crypto" | "fiat">("crypto");
+  const [assetRate, setAssetRate] = useState("");
+  const [assetIconBg, setAssetIconBg] = useState("");
+  const [isSubmittingAsset, setIsSubmittingAsset] = useState(false);
+
   // Search filter
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -52,13 +61,89 @@ export default function AdminDashboard() {
     try {
       const usersData = await api.admin.getAllUsers();
       const txData = await api.admin.getAllTransactions();
+      let assetsData: any[] = [];
+      try {
+        assetsData = await api.assets.list();
+      } catch (assetErr) {
+        console.error("Failed to load assets in admin dashboard:", assetErr);
+      }
       setAllUsers(usersData);
       setAllTransactions(txData);
+      setAssets(assetsData);
     } catch (err) {
       console.error("Failed to load administrative logs:", err);
       toast.error("Failed to load administrative logs.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Submit new asset
+  const handleAddAsset = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!assetCode || !assetName || !assetRate) {
+      toast.error("Please fill in all required asset fields.");
+      return;
+    }
+
+    setIsSubmittingAsset(true);
+    try {
+      const parsedRate = parseFloat(assetRate);
+      if (isNaN(parsedRate) || parsedRate <= 0) {
+        toast.error("Rate must be a positive number.");
+        return;
+      }
+
+      await api.admin.addAsset(
+        assetCode.toUpperCase().trim(),
+        assetName.trim(),
+        assetType,
+        parsedRate,
+        assetIconBg.trim() || undefined
+      );
+
+      toast.success(`Asset ${assetCode.toUpperCase()} successfully added!`);
+      
+      // Reset form
+      setAssetCode("");
+      setAssetName("");
+      setAssetRate("");
+      setAssetIconBg("");
+      
+      // Reload lists
+      await loadAdminMetrics();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add new asset.");
+    } finally {
+      setIsSubmittingAsset(false);
+    }
+  };
+
+  // Toggle active status of asset
+  const handleToggleAssetStatus = async (code: string, currentStatus: boolean) => {
+    try {
+      await api.admin.updateAsset(code, { isActive: !currentStatus });
+      toast.success(`Asset ${code} marked ${!currentStatus ? "Active" : "Inactive"}!`);
+      await loadAdminMetrics();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update asset status.");
+    }
+  };
+
+  // Edit rate of asset
+  const handleUpdateAssetRate = async (code: string, newRateStr: string) => {
+    const rateVal = parseFloat(newRateStr);
+    if (isNaN(rateVal) || rateVal <= 0) {
+      toast.error("Rate must be a valid positive number.");
+      return;
+    }
+
+    try {
+      await api.admin.updateAsset(code, { rateToUSD: rateVal });
+      toast.success(`Rate for ${code} updated to $${rateVal}!`);
+      await loadAdminMetrics();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update asset rate.");
     }
   };
 
@@ -213,13 +298,13 @@ export default function AdminDashboard() {
 
       {/* 3. TABS SELECTOR & SEARCH BAR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-150 pb-2">
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl shrink-0">
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl shrink-0 overflow-x-auto">
           <button
             onClick={() => {
               setActiveTab("transactions");
               setSearchQuery("");
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap ${
               activeTab === "transactions" ? "bg-white text-slate-900 shadow-sm" : "text-gray-500 hover:text-gray-900"
             }`}
           >
@@ -231,7 +316,7 @@ export default function AdminDashboard() {
               setActiveTab("traders");
               setSearchQuery("");
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap ${
               activeTab === "traders" ? "bg-white text-slate-900 shadow-sm" : "text-gray-500 hover:text-gray-900"
             }`}
           >
@@ -243,16 +328,28 @@ export default function AdminDashboard() {
               setActiveTab("deposits");
               setSearchQuery("");
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap ${
               activeTab === "deposits" ? "bg-white text-slate-900 shadow-sm" : "text-gray-500 hover:text-gray-900"
             }`}
           >
             Receipt Depositories
           </button>
+
+          <button
+            onClick={() => {
+              setActiveTab("assets");
+              setSearchQuery("");
+            }}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap ${
+              activeTab === "assets" ? "bg-white text-slate-900 shadow-sm" : "text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            Manage Assets
+          </button>
         </div>
 
         {/* Search query box */}
-        {activeTab !== "deposits" && (
+        {activeTab !== "deposits" && activeTab !== "assets" && (
           <div className="relative max-w-xs w-full">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
               <Search className="h-4 w-4" />
@@ -524,6 +621,181 @@ export default function AdminDashboard() {
                 ))}
               </div>
             )}
+          </div>
+
+        </div>
+      )}
+
+      {/* 4. MANAGE ASSETS TAB */}
+      {activeTab === "assets" && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* New Asset Creation Form */}
+          <div className="lg:col-span-4 p-5 rounded-2xl border border-gray-150 bg-white shadow-sm space-y-4 font-sans text-xs">
+            <div className="space-y-1">
+              <h2 className="font-sans text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center space-x-1.5">
+                <Coins className="h-4 w-4 text-slate-500" />
+                <span>Register New Asset</span>
+              </h2>
+              <p className="text-[11px] text-gray-500">Provide token/code designations to add cryptos or fiat currencies to terminals.</p>
+            </div>
+
+            <form onSubmit={handleAddAsset} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400">Currency Symbol/Code</label>
+                <input
+                  type="text"
+                  placeholder="e.g. DOGE, CAD, BNB, JPY"
+                  required
+                  value={assetCode}
+                  onChange={(e) => setAssetCode(e.target.value.toUpperCase())}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none font-mono uppercase"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400">Currency Full Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Dogecoin, Canadian Dollar"
+                  required
+                  value={assetName}
+                  onChange={(e) => setAssetName(e.target.value)}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none font-sans"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400">Asset Class Type</label>
+                <select
+                  value={assetType}
+                  onChange={(e) => setAssetType(e.target.value as "crypto" | "fiat")}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="crypto">Cryptocurrency</option>
+                  <option value="fiat">Fiat Currency</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400">Simulation Rate (to 1 USD)</label>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 0.14 for Doge, 0.73 for CAD"
+                  required
+                  value={assetRate}
+                  onChange={(e) => setAssetRate(e.target.value)}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-gray-400">Icon UI Styles (Optional Bg/Text CSS)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. bg-amber-100 text-amber-600 border-amber-200"
+                  value={assetIconBg}
+                  onChange={(e) => setAssetIconBg(e.target.value)}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none font-mono"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmittingAsset}
+                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition uppercase tracking-wider shadow cursor-pointer font-sans"
+              >
+                {isSubmittingAsset ? "Adding asset..." : "Register Global Asset"}
+              </button>
+            </form>
+          </div>
+
+          {/* Core Assets list and modification tool */}
+          <div className="lg:col-span-8 space-y-4 text-xs font-sans">
+            <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-slate-900">Supported System Currencies</h3>
+
+            <div className="overflow-x-auto rounded-2xl border border-gray-150 bg-white">
+              <table className="min-w-full divide-y divide-gray-155 text-xs text-left">
+                <thead className="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans">
+                  <tr>
+                    <th className="px-5 py-3.5">Asset</th>
+                    <th className="px-5 py-3.5">Class</th>
+                    <th className="px-5 py-3.5">Simulated Spot Rate (USD)</th>
+                    <th className="px-5 py-3.5">Status</th>
+                    <th className="px-5 py-3.5 text-right font-sans">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white font-medium text-slate-800">
+                  {assets.map((a: any) => (
+                    <tr key={a.code} className="hover:bg-slate-50 transition">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center space-x-2.5">
+                          <span className={`px-2 py-1 rounded-xl text-xs font-bold font-mono border ${a.iconBg || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                            {a.code}
+                          </span>
+                          <div>
+                            <span className="font-sans font-bold text-gray-900 block">{a.name}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize ${
+                          a.type === "crypto" ? "bg-purple-100 text-purple-800 border-purple-150" : "bg-blue-100 text-blue-800 border-blue-150"
+                        }`}>
+                          {a.type}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 font-mono font-bold">
+                        <div className="flex items-center space-x-1">
+                          <span>$</span>
+                          <input
+                            type="number"
+                            step="any"
+                            defaultValue={a.rateToUSD}
+                            onBlur={(e) => handleUpdateAssetRate(a.code, e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleUpdateAssetRate(a.code, (e.target as any).value);
+                                (e.target as any).blur();
+                              }
+                            }}
+                            className="w-24 px-1.5 py-0.5 border border-transparent hover:border-gray-200 focus:border-blue-500 focus:outline-none rounded bg-transparent focus:bg-white"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`inline-flex items-center space-x-1 text-[11px] font-semibold ${
+                          a.isActive ? "text-emerald-700" : "text-rose-600"
+                        }`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${a.isActive ? "bg-emerald-500" : "bg-rose-500"}`}></span>
+                          <span>{a.isActive ? "Active Terminal" : "Suspended"}</span>
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <button
+                          onClick={() => handleToggleAssetStatus(a.code, a.isActive)}
+                          className={`px-3 py-1 rounded-lg text-[11px] font-bold border transition cursor-pointer font-sans ${
+                            a.isActive
+                              ? "bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-100"
+                              : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-100"
+                          }`}
+                        >
+                          {a.isActive ? "Suspend" : "Activate"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {assets.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-5 py-10 text-center text-gray-400 font-sans">
+                        No custom assets registered on node catalog.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>
