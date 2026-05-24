@@ -10,6 +10,9 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   passwordHash: { type: String, required: true },
   role: { type: String, enum: ["user", "admin"], default: "user" },
+  isEmailVerified: { type: Boolean, default: false },
+  emailVerificationCode: { type: String },
+  emailVerificationToken: { type: String },
   cryptoWallets: [{
     id: String,
     currency: String,
@@ -92,6 +95,9 @@ export interface User {
   email: string;
   passwordHash: string;
   role: "user" | "admin";
+  isEmailVerified?: boolean;
+  emailVerificationCode?: string;
+  emailVerificationToken?: string;
   cryptoWallets: CryptoWallet[];
   bankAccounts: BankAccount[];
   balances: Record<string, number>;
@@ -280,10 +286,12 @@ class DbStore {
     for (const defU of defaultUsers) {
       const existingIdx = this.data.users.findIndex(u => u && u.email && u.email.toLowerCase() === defU.email.toLowerCase());
       if (existingIdx === -1) {
+        defU.isEmailVerified = true;
         this.data.users.push(defU);
       } else {
         const u = this.data.users[existingIdx];
         if (u) {
+          u.isEmailVerified = true;
           if (!u.id) u.id = defU.id;
           if (!u.passwordHash) u.passwordHash = defU.passwordHash;
           if (!u.balances || Object.keys(u.balances).length === 0) u.balances = defU.balances;
@@ -587,16 +595,19 @@ class DbStore {
     const newUser: User = {
       ...user,
       id: "usr_" + Math.random().toString(36).substr(2, 9),
+      isEmailVerified: false,
+      emailVerificationCode: Math.floor(100000 + Math.random() * 900000).toString(),
+      emailVerificationToken: Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11),
       cryptoWallets: [],
       bankAccounts: [],
       balances: {
         BTC: 0,
         ETH: 0,
-        USDT: 10000.0, // Seed active demo balance for swaps
+        USDT: 0,
         SOL: 0,
-        USD: 5000.0,
-        EUR: 5000.0,
-        GBP: 5000.0,
+        USD: 0,
+        EUR: 0,
+        GBP: 0,
       },
       createdAt: new Date().toISOString(),
     };

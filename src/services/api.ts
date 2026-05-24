@@ -67,6 +67,20 @@ export const api = {
     async getMe(): Promise<any> {
       return request("/auth/me");
     },
+
+    async verifyCode(email: string, code: string): Promise<any> {
+      return request("/auth/verify-code", {
+        method: "POST",
+        body: JSON.stringify({ email, code }),
+      });
+    },
+
+    async resendCode(email: string): Promise<any> {
+      return request("/auth/resend-code", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+    },
   },
 
   user: {

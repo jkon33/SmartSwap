@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
 import Navbar from "./components/Navbar";
 import PriceTicker from "./components/PriceTicker";
+import EmailVerification from "./components/EmailVerification";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -28,6 +29,10 @@ function AuthGuard({ children }: { children: ReactNode }) {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (user.isEmailVerified === false) {
+    return <EmailVerification />;
   }
 
   return children;

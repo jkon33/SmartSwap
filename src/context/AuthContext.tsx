@@ -9,6 +9,8 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshMe: () => Promise<void>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,13 +69,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const verifyEmail = async (email: string, code: string) => {
+    await api.auth.verifyCode(email, code);
+    // Directly update the verified status locally
+    if (user && user.email.toLowerCase() === email.toLowerCase()) {
+      setUser({ ...user, isEmailVerified: true });
+    } else {
+      // If we verified but we are not fully logged in/synced yet, we can refresh
+      try {
+        const response = await api.auth.getMe();
+        setUser(response);
+      } catch (e) {
+        // Safe check
+      }
+    }
+  };
+
+  const resendVerification = async (email: string) => {
+    await api.auth.resendCode(email);
+  };
+
   const logout = () => {
     localStorage.removeItem("smartswap_token");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshMe }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshMe, verifyEmail, resendVerification }}>
       {children}
     </AuthContext.Provider>
   );

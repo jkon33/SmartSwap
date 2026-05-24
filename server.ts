@@ -10,7 +10,7 @@ import { dbStore } from "./server/dbStore";
 dotenv.config();
 
 // Controllers
-import { register, login, getMe } from "./server/authController";
+import { register, login, getMe, verifyCode, verifyEmailLink, resendCode } from "./server/authController";
 import { addCryptoWallet, addBankAccount, getWithdrawalMethods } from "./server/userController";
 import { getQuote, createSwapTransaction, getUserTransactions } from "./server/swapController";
 import {
@@ -81,6 +81,9 @@ async function runFullStackServer() {
   app.post("/api/auth/register", register);
   app.post("/api/auth/login", login);
   app.get("/api/auth/me", authMiddleware as any, getMe as any);
+  app.post("/api/auth/verify-code", verifyCode);
+  app.get("/api/auth/verify-email", verifyEmailLink);
+  app.post("/api/auth/resend-code", resendCode);
 
   // User Profile & Wallets API
   app.post("/api/user/wallet", authMiddleware as any, addCryptoWallet as any);
