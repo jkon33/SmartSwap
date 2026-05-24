@@ -1,0 +1,6 @@
+{
+  "name": "SmartSwap",
+  "description": "SmartSwap is a full-stack real-time crypto and fiat swapping web platform with real-time price tick feeds, secure JWT multi-role login, user payout and deposit managers, and comprehensive administrator transaction states.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
