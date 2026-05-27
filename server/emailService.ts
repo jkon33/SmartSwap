@@ -7,7 +7,7 @@ export async function sendVerificationEmail(email: string, name: string, code: s
   const smtpPass = process.env.SMTP_PASS;
   const smtpFrom = process.env.SMTP_FROM || `"SmartSwap" <no-reply@smartswap.com>`;
 
-  const appUrl = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+  const appUrl = (process.env.APP_URL || "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app").replace(/\/$/, "");
   const verificationLink = `${appUrl}/api/auth/verify-email?email=${encodeURIComponent(email)}&token=${token}`;
 
   const emailSubject = "Verify Your SmartSwap Account";

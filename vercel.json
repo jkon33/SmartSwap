@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "https://smartswap-xui6.onrender.com/api/:match*"
+      "destination": "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app/api/:match*"
     },
     {
       "source": "/(.*)",

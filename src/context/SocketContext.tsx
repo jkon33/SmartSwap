@@ -45,7 +45,15 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         return envSocketUrl;
       }
 
-      // 3. Fallback to standard window location origin
+      // 3. Fallback to direct Cloud Run backend if hosted on Vercel (since Vercel doesn't proxy WebSockets)
+      if (typeof window !== "undefined") {
+        const host = window.location.hostname;
+        if (host.includes("vercel.app") || host.includes("vercel")) {
+          return "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app";
+        }
+      }
+
+      // 4. Fallback to standard window location origin
       if (typeof window !== "undefined") {
         return window.location.origin;
       }
