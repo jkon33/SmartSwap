@@ -48,7 +48,34 @@ export async function sendVerificationEmail(email: string, name: string, code: s
   `;
 
   // Try real SMTP first
-  if (smtpHost && smtpUser && smtpPass) {
+  const isGmail = smtpHost === "smtp.gmail.com" || 
+                  (smtpUser && smtpUser.endsWith("@gmail.com")) || 
+                  (process.env.SMTP_SERVICE && process.env.SMTP_SERVICE.toLowerCase() === "gmail");
+
+  if (isGmail && smtpUser && smtpPass) {
+    try {
+      console.log(`[SMTP] Initializing dedicated Gmail SMTP service configuration for ${smtpUser}...`);
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: smtpUser,
+          pass: smtpPass, // User's Gmail App Password (highly recommended)
+        },
+      });
+
+      await transporter.sendMail({
+        from: smtpFrom || smtpUser,
+        to: email,
+        subject: emailSubject,
+        html: emailHtml,
+      });
+
+      console.log(`[SMTP-GMAIL] Verification email sent successfully to: ${email}`);
+      return true;
+    } catch (err) {
+      console.error("[SMTP-GMAIL] Error sending email via Gmail transport:", err);
+    }
+  } else if (smtpHost && smtpUser && smtpPass) {
     try {
       const transporter = nodemailer.createTransport({
         host: smtpHost,

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { dbStore } from "./dbStore";
 import { sendVerificationEmail } from "./emailService";
+import { validatePasswordStrength, validateEmailString } from "./security";
 
 const JWT_SECRET = process.env.JWT_SECRET || "smartswap_fallback_super_secret_jwt_key_2026";
 
@@ -15,12 +16,28 @@ export async function register(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    if (password.length < 6) {
-      res.status(400).json({ success: false, message: "Password must be at least 6 characters long." });
+    // Input bounds check on name length
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 50) {
+      res.status(400).json({ success: false, message: "Name must be between 2 and 50 characters." });
       return;
     }
 
-    const existingUser = dbStore.getUserByEmail(email);
+    // RFC Strict Email syntax check
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!validateEmailString(trimmedEmail)) {
+      res.status(400).json({ success: false, message: "Invalid email address format entered." });
+      return;
+    }
+
+    // Sophisticated password strength verification
+    const pwdCheck = validatePasswordStrength(password);
+    if (!pwdCheck.valid) {
+      res.status(400).json({ success: false, message: pwdCheck.reason });
+      return;
+    }
+
+    const existingUser = dbStore.getUserByEmail(trimmedEmail);
     if (existingUser) {
       res.status(400).json({ success: false, message: "A user with this email already exists." });
       return;
@@ -30,8 +47,8 @@ export async function register(req: Request, res: Response): Promise<void> {
     const passwordHash = await bcrypt.hash(password, salt);
 
     const newUser = dbStore.createUser({
-      name,
-      email,
+      name: trimmedName,
+      email: trimmedEmail,
       passwordHash,
       role: "user", // defaults to customer
     });

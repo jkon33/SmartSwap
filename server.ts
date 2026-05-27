@@ -27,6 +27,11 @@ import {
 
 // Middlewares
 import { authMiddleware, adminMiddleware } from "./server/authMiddleware";
+import {
+  secureCorsMiddleware,
+  sanitizeInputMiddleware,
+  rateLimiter,
+} from "./server/security";
 
 // Services
 import { startPriceService } from "./server/priceService";
@@ -53,20 +58,20 @@ async function runFullStackServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   const HOST = "0.0.0.0";
 
-  // Body parser limit (safeguard)
-  app.use(express.json());
+  // Body parser size limit safeguard
+  app.use(express.json({ limit: "15kb" }));
 
-  // CORS headers (broadly permissive in container context)
-  app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    if (req.method === "OPTIONS") {
-      res.sendStatus(200);
-      return;
-    }
-    next();
-  });
+  // CORS security validation layers
+  app.use(secureCorsMiddleware);
+
+  // Deep sanitization of request bodies, queries and params to neutralize injection
+  app.use(sanitizeInputMiddleware);
+
+  // Global rate limiter setup (protects API endpoints from general scanner floodings)
+  app.use("/api", rateLimiter({ windowMs: 60000, max: 100 }));
+
+  // Sensitive security endpoint rate limiter (protects brute-forceable authentication paths)
+  const authLimit = rateLimiter({ windowMs: 60000, max: 8, sensitive: true });
 
   // --- API ROUTING SECTION ---
 
@@ -80,13 +85,13 @@ async function runFullStackServer() {
     res.json({ success: true, data: dbStore.getPrices() });
   });
 
-  // Authentication API
-  app.post("/api/auth/register", register);
-  app.post("/api/auth/login", login);
+  // Authentication API (Fortified with strict request rate limiting)
+  app.post("/api/auth/register", authLimit, register);
+  app.post("/api/auth/login", authLimit, login);
   app.get("/api/auth/me", authMiddleware as any, getMe as any);
-  app.post("/api/auth/verify-code", verifyCode);
+  app.post("/api/auth/verify-code", authLimit, verifyCode);
   app.get("/api/auth/verify-email", verifyEmailLink);
-  app.post("/api/auth/resend-code", resendCode);
+  app.post("/api/auth/resend-code", authLimit, resendCode);
 
   // User Profile & Wallets API
   app.post("/api/user/wallet", authMiddleware as any, addCryptoWallet as any);

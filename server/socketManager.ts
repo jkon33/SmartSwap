@@ -1,12 +1,20 @@
 import { Server } from "socket.io";
 import { registerPriceBroadcast } from "./priceService";
 import { dbStore } from "./dbStore";
+import { isAllowedOrigin } from "./security";
 
 export function initSocketManager(server: any) {
   const io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: (requestOrigin, callback) => {
+        if (!requestOrigin || isAllowedOrigin(requestOrigin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("CORS Security Block: WebSocket cross-origin connection denied."), false);
+        }
+      },
       methods: ["GET", "POST"],
+      credentials: true,
     },
   });
 

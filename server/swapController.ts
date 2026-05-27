@@ -2,6 +2,7 @@ import { Response } from "express";
 import { dbStore, Transaction } from "./dbStore";
 import { calculateSwapRate } from "./priceService";
 import { GoogleGenAI } from "@google/genai";
+import { parseAndValidateAmount } from "./security";
 
 let genAIClient: any = null;
 function getGenAI() {
@@ -31,9 +32,9 @@ export function getQuote(req: any, res: Response): void {
       return;
     }
 
-    const parsedAmount = parseFloat(amount as string);
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      res.status(400).json({ success: false, message: "Invalid amount entered. Must be greater than 0." });
+    const { valid, parsed: parsedAmount, error } = parseAndValidateAmount(amount, "exchange amount");
+    if (!valid) {
+      res.status(400).json({ success: false, message: error || "Invalid quantity specified." });
       return;
     }
 
@@ -66,9 +67,9 @@ export function createSwapTransaction(req: any, res: Response): void {
       return;
     }
 
-    const parsedAmount = parseFloat(fromAmount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      res.status(400).json({ success: false, message: "Amount must be a positive number." });
+    const { valid, parsed: parsedAmount, error } = parseAndValidateAmount(fromAmount, "funding allocation");
+    if (!valid) {
+      res.status(400).json({ success: false, message: error || "Invalid swap amount." });
       return;
     }
 
