@@ -1,16 +1,18 @@
 const getApiBase = () => {
-  // 1. Explicitly check Vite env variable if provided
-  const envUrl = (import.meta as any).env.VITE_API_URL;
-  if (envUrl) {
-    return envUrl;
+  // 1. Check for custom backend override in localStorage first
+  if (typeof window !== "undefined") {
+    const savedUrl = localStorage.getItem("smartswap_backend_url");
+    if (savedUrl) {
+      const cleanUrl = savedUrl.trim().replace(/\/+$/, ""); // remove trailing slashes
+      return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
+    }
   }
 
-  // 2. Auto-detect Vercel preview/production deployments
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host.includes("vercel.app") || host.includes("vercel")) {
-      return "https://smartswap-xui6.onrender.com/api";
-    }
+  // 2. Explicitly check Vite env variable if provided
+  const envUrl = (import.meta as any).env.VITE_API_URL;
+  if (envUrl) {
+    const cleanUrl = envUrl.trim().replace(/\/+$/, "");
+    return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
   }
 
   // 3. Fallback to default relative path
@@ -31,7 +33,7 @@ function getHeaders() {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_BASE}${path}`;
+  const url = `${getApiBase()}${path}`;
   const response = await fetch(url, {
     ...options,
     headers: {

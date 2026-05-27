@@ -28,19 +28,28 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         console.error("Failed to retrieve initial rates via HTTP:", err);
       });
 
-    // Determine the socket server origin dynamically (fallback to Render if hosted on Vercel)
+    // Determine the socket server origin dynamically (fallback to custom stored backend if configured)
     const getSocketOrigin = () => {
+      // 1. Check for custom backend override in localStorage first
+      if (typeof window !== "undefined") {
+        const savedUrl = localStorage.getItem("smartswap_backend_url");
+        if (savedUrl) {
+          // Normalize by stripping /api path and trailing slash
+          return savedUrl.trim().replace(/\/api\/?$/, "").replace(/\/+$/, "");
+        }
+      }
+
+      // 2. Explicitly check Vite env variable if provided
       const envSocketUrl = (import.meta as any).env.VITE_SOCKET_URL;
       if (envSocketUrl) {
         return envSocketUrl;
       }
+
+      // 3. Fallback to standard window location origin
       if (typeof window !== "undefined") {
-        const host = window.location.hostname;
-        if (host.includes("vercel.app") || host.includes("vercel")) {
-          return "https://smartswap-xui6.onrender.com";
-        }
+        return window.location.origin;
       }
-      return window.location.origin;
+      return "";
     };
 
     // Connects to hosting fullstack express server dynamically

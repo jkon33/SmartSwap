@@ -170,12 +170,14 @@ export function isAllowedOrigin(origin: string | undefined): boolean {
     return true;
   }
 
-  // Allow AI Studio preview/development containers sandbox URLs dynamically
+  // Allow AI Studio preview/development containers sandbox URLs and Vercel deployments dynamically
   if (
     origin.includes(".europe-west2.run.app") ||
     origin.includes(".run.app") ||
     origin.endsWith(".google.app") ||
-    origin.includes("ai.studio/build")
+    origin.includes("ai.studio/build") ||
+    origin.includes(".vercel.app") ||
+    origin.includes("vercel")
   ) {
     return true;
   }
