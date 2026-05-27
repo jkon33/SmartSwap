@@ -5,7 +5,15 @@ export async function sendVerificationEmail(email: string, name: string, code: s
   const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  const smtpFrom = process.env.SMTP_FROM || `"SmartSwap" <no-reply@smartswap.com>`;
+
+  let senderAddress = process.env.SMTP_FROM;
+  if (!senderAddress) {
+    if (smtpUser) {
+      senderAddress = `"SmartSwap" <${smtpUser}>`;
+    } else {
+      senderAddress = `"SmartSwap" <no-reply@smartswap.com>`;
+    }
+  }
 
   const appUrl = (process.env.APP_URL || "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app").replace(/\/$/, "");
   const verificationLink = `${appUrl}/api/auth/verify-email?email=${encodeURIComponent(email)}&token=${token}`;
@@ -64,7 +72,7 @@ export async function sendVerificationEmail(email: string, name: string, code: s
       });
 
       await transporter.sendMail({
-        from: smtpFrom || smtpUser,
+        from: senderAddress,
         to: email,
         subject: emailSubject,
         html: emailHtml,
@@ -88,7 +96,7 @@ export async function sendVerificationEmail(email: string, name: string, code: s
       });
 
       await transporter.sendMail({
-        from: smtpFrom,
+        from: senderAddress,
         to: email,
         subject: emailSubject,
         html: emailHtml,

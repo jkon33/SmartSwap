@@ -233,33 +233,33 @@
   "prices": [
     {
       "currencyPair": "BTC/USD",
-      "rate": 74714.09,
-      "lastUpdated": "2026-05-27T18:35:31.283Z"
+      "rate": 73723.73,
+      "lastUpdated": "2026-05-27T19:02:56.175Z"
     },
     {
       "currencyPair": "ETH/USD",
-      "rate": 2050.11,
-      "lastUpdated": "2026-05-27T18:35:31.284Z"
+      "rate": 2112.82,
+      "lastUpdated": "2026-05-27T19:02:56.176Z"
     },
     {
       "currencyPair": "SOL/USD",
-      "rate": 83.38,
-      "lastUpdated": "2026-05-27T18:35:31.284Z"
+      "rate": 86.32,
+      "lastUpdated": "2026-05-27T19:02:56.176Z"
     },
     {
       "currencyPair": "USDT/USD",
       "rate": 1,
-      "lastUpdated": "2026-05-27T18:35:31.284Z"
+      "lastUpdated": "2026-05-27T19:02:56.176Z"
     },
     {
       "currencyPair": "USD/EUR",
-      "rate": 0.8596,
-      "lastUpdated": "2026-05-27T18:35:31.284Z"
+      "rate": 0.8619,
+      "lastUpdated": "2026-05-27T19:02:56.177Z"
     },
     {
       "currencyPair": "USD/GBP",
-      "rate": 0.7444,
-      "lastUpdated": "2026-05-27T18:35:31.284Z"
+      "rate": 0.7425,
+      "lastUpdated": "2026-05-27T19:02:56.178Z"
     }
   ],
   "assets": [
