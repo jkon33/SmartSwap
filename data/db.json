@@ -1,0 +1,323 @@
+{
+  "users": [
+    {
+      "id": "usr_sjlgopfez",
+      "name": "SmartSwap Admin",
+      "email": "admin@smartswap.io",
+      "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.YSSIX9VIx5IxTwATNTx6fdutw1ft9jy",
+      "role": "admin",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 10,
+        "ETH": 100,
+        "USDT": 500000,
+        "SOL": 1000,
+        "USD": 1000000,
+        "EUR": 1000000,
+        "GBP": 1000000
+      },
+      "createdAt": "Fri May 22 2026 16:48:42 GMT+0000 (Coordinated Universal Time)",
+      "isEmailVerified": true
+    },
+    {
+      "id": "usr_frxu2yewe",
+      "name": "Default User",
+      "email": "user@smartswap.io",
+      "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.NwodtBtb3sC9FBLk.zYJht0vWMpp.1G",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0.15,
+        "ETH": 2.5,
+        "USDT": 2500,
+        "SOL": 20,
+        "USD": 10000,
+        "EUR": 5000,
+        "GBP": 3000
+      },
+      "createdAt": "Fri May 22 2026 16:48:42 GMT+0000 (Coordinated Universal Time)",
+      "isEmailVerified": true
+    },
+    {
+      "id": "usr_admin_1",
+      "name": "SmartSwap Admin",
+      "email": "admin@smartswap.com",
+      "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.YSSIX9VIx5IxTwATNTx6fdutw1ft9jy",
+      "role": "admin",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 10,
+        "ETH": 100,
+        "USDT": 500000,
+        "SOL": 1000,
+        "USD": 1000000,
+        "EUR": 1000000,
+        "GBP": 1000000
+      },
+      "createdAt": "2026-05-24T11:06:38.184Z",
+      "isEmailVerified": true
+    },
+    {
+      "id": "usr_demo_2",
+      "name": "Demo Investor",
+      "email": "user@smartswap.com",
+      "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.NwodtBtb3sC9FBLk.zYJht0vWMpp.1G",
+      "role": "user",
+      "cryptoWallets": [
+        {
+          "id": "wlt_1",
+          "currency": "BTC",
+          "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+          "label": "My Trust Wallet"
+        },
+        {
+          "id": "wlt_2",
+          "currency": "USDT",
+          "address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+          "label": "Metamask Ledger"
+        }
+      ],
+      "bankAccounts": [
+        {
+          "id": "bnk_1",
+          "bankName": "Chase Bank",
+          "accountNumber": "1234567890",
+          "routingNumber": "021000021",
+          "label": "Primary Savings"
+        }
+      ],
+      "balances": {
+        "BTC": 0.15,
+        "ETH": 2.49013,
+        "USDT": 2500,
+        "SOL": 20,
+        "USD": 10020.748714,
+        "EUR": 5000,
+        "GBP": 3000
+      },
+      "createdAt": "2026-05-24T11:06:38.184Z",
+      "isEmailVerified": true
+    },
+    {
+      "id": "usr_ieezjoy34",
+      "name": "Adekoya Ayomikun ",
+      "email": "ayomikunadekoya111@gmail.com",
+      "passwordHash": "$2b$10$cwx/rtLtg4GeDPl3HOjTpeJcb.PEZtnwdT761.SqUlhNHj.EK6RHm",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "USDT": 0,
+        "SOL": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-24T13:03:42.506Z"
+    },
+    {
+      "id": "usr_cpf9rjtow",
+      "name": "Don Jay",
+      "email": "oluzeun21@gmail.com",
+      "passwordHash": "$2b$10$c/fM.uU/Ufs6FaN9yBtoXO20QS.TEbXFUHLZrvRIDTLg8vZF3btC.",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-24T13:10:53.704Z"
+    },
+    {
+      "id": "usr_qibyol956",
+      "name": "Emmanuel Tosin",
+      "email": "etosin70@yopmail.com",
+      "passwordHash": "$2b$10$6oVM2rpJx5Vd7LXjRd6.Q..onT42zpGCN96Ocm64riS/B/g.ikeKW",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-27T17:34:07.387Z"
+    },
+    {
+      "id": "usr_k8kvc6mkl",
+      "name": "Dons",
+      "email": "filterman36@gmail.com",
+      "passwordHash": "$2b$10$zF1T6eVzH4r3JzhNwJAxbOnqcmG//Cwre/HpThCH/zCoOFQx5l1wy",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-27T18:28:39.944Z"
+    }
+  ],
+  "transactions": [],
+  "depositDetails": [
+    {
+      "id": "dep_btc",
+      "type": "crypto",
+      "currency": "BTC",
+      "addressOrDetails": "3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5",
+      "isActive": true
+    },
+    {
+      "id": "dep_eth",
+      "type": "crypto",
+      "currency": "ETH",
+      "addressOrDetails": "0x98311a63cE9f291E33E1c27cEc47d8481A6b106D",
+      "isActive": true
+    },
+    {
+      "id": "dep_usdt",
+      "type": "crypto",
+      "currency": "USDT",
+      "addressOrDetails": "0x98311a63cE9f291E33E1c27cEc47d8481A6b106D",
+      "isActive": true
+    },
+    {
+      "id": "dep_sol",
+      "type": "crypto",
+      "currency": "SOL",
+      "addressOrDetails": "HN7cABFi4Y4GfNQQWfXcr377bQG6Xz6N3uY",
+      "isActive": true
+    },
+    {
+      "id": "dep_usd",
+      "type": "bank",
+      "currency": "USD",
+      "addressOrDetails": "SmartSwap Corp, Bank of America, Acc: 9876543210, Routing: 021000021",
+      "isActive": true
+    },
+    {
+      "id": "dep_eur",
+      "type": "bank",
+      "currency": "EUR",
+      "addressOrDetails": "SmartSwap GmbH, Deutsche Bank, IBAN: DE89370400440532013000, BIC: DEUTDEDDXXX",
+      "isActive": true
+    },
+    {
+      "id": "dep_gbp",
+      "type": "bank",
+      "currency": "GBP",
+      "addressOrDetails": "SmartSwap Ltd, Barclays Bank, Sort Code: 20-00-00, Acc: 11223344",
+      "isActive": true
+    }
+  ],
+  "prices": [
+    {
+      "currencyPair": "BTC/USD",
+      "rate": 74714.09,
+      "lastUpdated": "2026-05-27T18:35:31.283Z"
+    },
+    {
+      "currencyPair": "ETH/USD",
+      "rate": 2050.11,
+      "lastUpdated": "2026-05-27T18:35:31.284Z"
+    },
+    {
+      "currencyPair": "SOL/USD",
+      "rate": 83.38,
+      "lastUpdated": "2026-05-27T18:35:31.284Z"
+    },
+    {
+      "currencyPair": "USDT/USD",
+      "rate": 1,
+      "lastUpdated": "2026-05-27T18:35:31.284Z"
+    },
+    {
+      "currencyPair": "USD/EUR",
+      "rate": 0.8596,
+      "lastUpdated": "2026-05-27T18:35:31.284Z"
+    },
+    {
+      "currencyPair": "USD/GBP",
+      "rate": 0.7444,
+      "lastUpdated": "2026-05-27T18:35:31.284Z"
+    }
+  ],
+  "assets": [
+    {
+      "code": "BTC",
+      "name": "Bitcoin",
+      "type": "crypto",
+      "isActive": true,
+      "rateToUSD": 68450,
+      "iconBg": "bg-amber-100 text-amber-600 border-amber-200"
+    },
+    {
+      "code": "ETH",
+      "name": "Ethereum",
+      "type": "crypto",
+      "isActive": true,
+      "rateToUSD": 3450,
+      "iconBg": "bg-indigo-100 text-indigo-600 border-indigo-200"
+    },
+    {
+      "code": "SOL",
+      "name": "Solana",
+      "type": "crypto",
+      "isActive": true,
+      "rateToUSD": 168.5,
+      "iconBg": "bg-purple-100 text-purple-600 border-purple-200"
+    },
+    {
+      "code": "USDT",
+      "name": "Tether USD",
+      "type": "crypto",
+      "isActive": true,
+      "rateToUSD": 1,
+      "iconBg": "bg-teal-100 text-teal-600 border-teal-200"
+    },
+    {
+      "code": "USD",
+      "name": "US Dollar",
+      "type": "fiat",
+      "isActive": true,
+      "rateToUSD": 1,
+      "iconBg": "bg-emerald-100 text-emerald-600 border-emerald-200"
+    },
+    {
+      "code": "EUR",
+      "name": "Euro Coin",
+      "type": "fiat",
+      "isActive": true,
+      "rateToUSD": 1.087,
+      "iconBg": "bg-blue-100 text-blue-600 border-blue-200"
+    },
+    {
+      "code": "GBP",
+      "name": "British Pound",
+      "type": "fiat",
+      "isActive": true,
+      "rateToUSD": 1.266,
+      "iconBg": "bg-rose-100 text-rose-600 border-rose-200"
+    }
+  ]
+}

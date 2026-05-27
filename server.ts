@@ -80,6 +80,71 @@ async function runFullStackServer() {
     res.json({ success: true, message: "SmartSwap fullstack engine operational." });
   });
 
+  // SMTP Test diagnostic endpoint
+  app.get("/api/debug/test-smtp", async (req, res) => {
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = process.env.SMTP_PORT;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS ? "********" : "NOT_SET";
+    const smtpService = process.env.SMTP_SERVICE;
+    
+    try {
+      const nodemailer = await import("nodemailer");
+      console.log("[DEBUG-SMTP] Testing SMTP with configuration:", { smtpHost, smtpPort, smtpUser, smtpPass: "SET", smtpService });
+      
+      const isGmail = smtpHost === "smtp.gmail.com" || 
+                      (smtpUser && smtpUser.endsWith("@gmail.com")) || 
+                      (smtpService && smtpService.toLowerCase() === "gmail");
+
+      let transporter;
+      if (isGmail && smtpUser && process.env.SMTP_PASS) {
+        transporter = nodemailer.default.createTransport({
+          service: "gmail",
+          auth: {
+            user: smtpUser,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+      } else if (smtpHost && smtpUser && process.env.SMTP_PASS) {
+        transporter = nodemailer.default.createTransport({
+          host: smtpHost,
+          port: smtpPort ? parseInt(smtpPort) : 587,
+          secure: smtpPort === "465",
+          auth: {
+            user: smtpUser,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+      } else {
+        throw new Error("No real SMTP configuration detected in .env file.");
+      }
+
+      await transporter.verify();
+      
+      const info = await transporter.sendMail({
+        from: process.env.SMTP_FROM || smtpUser,
+        to: smtpUser || "oluzeun21@gmail.com",
+        subject: "SmartSwap SMTP Connection Test",
+        text: "This is a direct test email from your SmartSwap platform to verify SMTP configuration.",
+        html: "<h3>SmartSwap SMTP Connection Test</h3><p>This is a direct test email from your SmartSwap platform to verify SMTP configuration.</p>"
+      });
+
+      res.json({
+        success: true,
+        message: "SMTP verified and test email sent successfully!",
+        info
+      });
+    } catch (err: any) {
+      console.error("[DEBUG-SMTP] Error during test:", err);
+      res.status(500).json({
+        success: false,
+        error: err.message || "Unknown error",
+        stack: err.stack,
+        config: { smtpHost, smtpPort, smtpUser, smtpPass, smtpService }
+      });
+    }
+  });
+
   // Live prices HTTP fallback endpoint
   app.get("/api/prices", (req, res) => {
     res.json({ success: true, data: dbStore.getPrices() });

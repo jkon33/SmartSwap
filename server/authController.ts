@@ -105,6 +105,24 @@ export async function login(req: Request, res: Response): Promise<void> {
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
 
+    // Automatically trigger verification email if unverified and logging in
+    if (!user.isEmailVerified) {
+      let verificationCode = user.emailVerificationCode;
+      let verificationToken = user.emailVerificationToken;
+      if (!verificationCode) {
+        verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        verificationToken = Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11);
+        dbStore.updateUser(user.id, {
+          emailVerificationCode: verificationCode,
+          emailVerificationToken: verificationToken
+        });
+      }
+      console.log(`[LOGIN-AUTOSEND] Dispatching verification email automatically to unverified user: ${user.email}`);
+      sendVerificationEmail(user.email, user.name, verificationCode, verificationToken || "").catch((err) => {
+        console.error("Login automatic verification email dispatch failed:", err);
+      });
+    }
+
     const { passwordHash: _, ...safeUser } = user;
 
     res.status(200).json({
