@@ -159,46 +159,66 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 2. Grid of Individual Holdings */}
+      {/* 2. List of Individual Holdings */}
       <div className="space-y-4">
         <h2 className="font-sans text-lg font-bold tracking-tight text-gray-900 flex items-center space-x-2">
           <Wallet2 className="h-5 w-5 text-gray-500" />
           <span>My Portfolio Holdings</span>
         </h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {assetsSchema.map((asset) => {
-            const rawBalance: number = (user?.balances?.[asset.code] as number) || 0.0;
-            const usdValue = rawBalance * calculateRate(asset.code, "USD");
+        <div className="overflow-hidden border border-gray-150 rounded-2xl bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50">
+                <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="py-3.5 px-6">Asset</th>
+                  <th scope="col" className="py-3.5 px-6 text-right">Current Price (USD)</th>
+                  <th scope="col" className="py-3.5 px-6 text-right">Your Balance</th>
+                  <th scope="col" className="py-3.5 px-6 text-right">Estimated Value</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {assetsSchema.map((asset) => {
+                  const rawBalance: number = (user?.balances?.[asset.code] as number) || 0.0;
+                  const usdValue = rawBalance * calculateRate(asset.code, "USD");
 
-            return (
-              <div key={asset.code} className="p-4 rounded-2xl border border-gray-150 bg-white hover:shadow-md transition duration-200">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2.5">
-                    <div className={`p-2 rounded-xl text-sm font-bold border ${asset.iconBg}`}>
-                      {asset.code}
-                    </div>
-                    <div>
-                      <h3 className="font-sans text-sm font-bold text-gray-900">{asset.name}</h3>
-                      <span className="text-[10px] text-gray-400 font-mono tracking-wide">1 {asset.code} = ${calculateRate(asset.code, "USD").toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-gray-50">
-                  <div className="font-mono text-lg font-bold text-slate-900">
-                    {rawBalance.toLocaleString(undefined, { 
-                      minimumFractionDigits: asset.code === "BTC" || asset.code === "ETH" ? 4 : 2, 
-                      maximumFractionDigits: asset.code === "BTC" || asset.code === "ETH" ? 6 : 4 
-                    })}
-                  </div>
-                  <div className="text-[11px] font-semibold text-gray-500 font-sans mt-0.5">
-                    &asymp; ${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                  return (
+                    <tr key={asset.code} className="hover:bg-slate-50/70 transition-colors duration-150">
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        <div className="flex items-center space-x-3">
+                          <div className={`p-2.5 rounded-xl text-xs font-bold border ${asset.iconBg} flex items-center justify-center w-11 h-11 shrink-0`}>
+                            {asset.code}
+                          </div>
+                          <div>
+                            <p className="font-sans text-sm font-bold text-gray-900">{asset.name}</p>
+                            <p className="text-[10px] text-gray-400 font-semibold tracking-wider font-mono">{asset.code}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-right whitespace-nowrap font-mono text-sm text-gray-600">
+                        ${calculateRate(asset.code, "USD").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                      </td>
+                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                        <p className="font-mono text-sm font-bold text-gray-900">
+                          {rawBalance.toLocaleString(undefined, { 
+                            minimumFractionDigits: asset.code === "BTC" || asset.code === "ETH" ? 4 : 2, 
+                            maximumFractionDigits: asset.code === "BTC" || asset.code === "ETH" ? 6 : 4 
+                          })}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-medium font-sans mt-0.5">{asset.code}</p>
+                      </td>
+                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                        <p className="font-sans text-sm font-bold text-slate-900">
+                          ${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-semibold tracking-wider font-mono uppercase">USD Equivalent</p>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
