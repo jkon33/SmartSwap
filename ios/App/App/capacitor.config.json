@@ -1,0 +1,9 @@
+{
+	"appId": "com.smartswap.app",
+	"appName": "SmartSwap",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"packageClassList": []
+}

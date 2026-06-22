@@ -58,3 +58,45 @@ npm run build
 1. Price tickers fluctuation loops kick off on server boot, triggering slight volatility shifts every **2 seconds**.
 2. Updated price arrays are emitted via the Socket.IO server under the channel `price_update`.
 3. Client custom hook `useRealtimePrices` captures these values and recalculates interface numbers, flashing green/red tags on up/down triggers.
+
+---
+
+## 📱 Mobile Platform Compilation (Android & iOS)
+
+SmartSwap features fully integrated **Capacitor** scaffolding to compile and package its intuitive frontend into production-ready native mobile applications for both **Android** and **iOS**.
+
+### Prerequisites
+1. **Android**: Install [Android Studio](https://developer.android.com/studio) and ensure you have the Android SDK tools installed.
+2. **iOS**: Install Xcode (requires macOS) and CocoaPods.
+
+### Mobile Development Workflow
+
+#### 1. Compile and Sync Assets
+This script builds your web app and synchronizes the distribution files (`/dist`) with both native Android and iOS wrapper shells instantly:
+```bash
+npm run mobile:sync
+```
+
+#### 2. Open Native IDE Projects
+Open Android Studio or Xcode with the respective native workspace pre-scaffolded:
+```bash
+# To open the Android project in Android Studio
+npm run mobile:open:android
+
+# To open the iOS project in Xcode (macOS only)
+npm run mobile:open:ios
+```
+
+#### 3. Run Directly on Device or Emulator
+Launch and deploy directly from your command-line terminal:
+```bash
+# Run on an active Android Emulator / Connected Device
+npm run mobile:run:android
+
+# Run on an iOS Simulator / Connected Device (macOS only)
+npm run mobile:run:ios
+```
+
+### Under-the-Hood Mobile Integrations
+- **Resilient Navigation**: Since mobile apps run directly in filesystem wrappers (`file://`), standard browser history routers may cause routing faults. SmartSwap natively utilizes React Router's `HashRouter`, making routing fully compatible on all mobile WebViews out of the box.
+- **Dynamic API Origin Resolution**: Relative URLs (like `/api`) fail on mobile containers. Inside `src/services/api.ts`, SmartSwap auto-detects if the host is running under Capacitor and redirects queries to our secure hosted deployment backend API: `https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app/api`.

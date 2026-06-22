@@ -4,7 +4,7 @@
       "id": "usr_sjlgopfez",
       "name": "SmartSwap Admin",
       "email": "admin@smartswap.io",
-      "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.YSSIX9VIx5IxTwATNTx6fdutw1ft9jy",
+      "passwordHash": "$2b$10$SkhsHvWeNPnQk3wkEyiQSOUYG/svVtFI/OPfoF.I01n4Tq3kXtxx2",
       "role": "admin",
       "cryptoWallets": [],
       "bankAccounts": [],
@@ -43,7 +43,7 @@
     {
       "id": "usr_admin_1",
       "name": "SmartSwap Admin",
-      "email": "oluzeun21@gmail.com",
+      "email": "admin@smartswap.com",
       "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.YSSIX9VIx5IxTwATNTx6fdutw1ft9jy",
       "role": "admin",
       "cryptoWallets": [],
@@ -118,6 +118,26 @@
         "GBP": 0
       },
       "createdAt": "2026-05-24T13:03:42.506Z"
+    },
+    {
+      "id": "usr_cpf9rjtow",
+      "name": "Don Jay",
+      "email": "oluzeun21@gmail.com",
+      "passwordHash": "$2b$10$SkhsHvWeNPnQk3wkEyiQSOUYG/svVtFI/OPfoF.I01n4Tq3kXtxx2",
+      "role": "admin",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-24T13:10:53.704Z",
+      "isEmailVerified": true
     },
     {
       "id": "usr_qibyol956",
@@ -289,33 +309,33 @@
   "prices": [
     {
       "currencyPair": "BTC/USD",
-      "rate": 75718.38,
-      "lastUpdated": "2026-06-22T14:07:47.461Z"
+      "rate": 74749.85,
+      "lastUpdated": "2026-06-22T14:19:49.851Z"
     },
     {
       "currencyPair": "ETH/USD",
-      "rate": 2194.07,
-      "lastUpdated": "2026-06-22T14:07:47.462Z"
+      "rate": 2285.01,
+      "lastUpdated": "2026-06-22T14:19:49.851Z"
     },
     {
       "currencyPair": "SOL/USD",
-      "rate": 83.32,
-      "lastUpdated": "2026-06-22T14:07:47.462Z"
+      "rate": 86.11,
+      "lastUpdated": "2026-06-22T14:19:49.851Z"
     },
     {
       "currencyPair": "USDT/USD",
       "rate": 1,
-      "lastUpdated": "2026-06-22T14:07:47.462Z"
+      "lastUpdated": "2026-06-22T14:19:49.851Z"
     },
     {
       "currencyPair": "USD/EUR",
-      "rate": 0.8721,
-      "lastUpdated": "2026-06-22T14:07:47.462Z"
+      "rate": 0.8728,
+      "lastUpdated": "2026-06-22T14:19:49.851Z"
     },
     {
       "currencyPair": "USD/GBP",
-      "rate": 0.758,
-      "lastUpdated": "2026-06-22T14:07:47.462Z"
+      "rate": 0.7551,
+      "lastUpdated": "2026-06-22T14:19:49.852Z"
     }
   ],
   "assets": [

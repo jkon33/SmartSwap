@@ -15,7 +15,18 @@ const getApiBase = () => {
     return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
   }
 
-  // 3. Fallback to default relative path
+  // 3. Fallback to default relative path, or the secure deployment URL if running in a native mobile container
+  if (typeof window !== "undefined") {
+    const isCapacitor = 
+      (window as any).Capacitor || 
+      window.location.origin.startsWith("capacitor://") || 
+      window.location.origin.includes("http://localhost") || 
+      window.location.protocol === "file:";
+    if (isCapacitor) {
+      return "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app/api";
+    }
+  }
+
   return "/api";
 };
 
