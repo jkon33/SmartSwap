@@ -92,6 +92,8 @@ export function simulatePriceTick() {
   }
 }
 
+let lastRealFetchTime = Date.now();
+
 // Start price service loop (every 2 seconds)
 export function startPriceService() {
   if (intervalId) return;
@@ -101,14 +103,67 @@ export function startPriceService() {
   fetchRealPrices().catch((err) => console.error("Initial real-world price fetch failed:", err));
 
   intervalId = setInterval(() => {
-    simulatePriceTick();
+    // Periodically sync with actual market prices to correct drift (every 60 seconds)
+    if (Date.now() - lastRealFetchTime > 60000) {
+      console.log("Periodic trigger: synchronising with real-world market pricing...");
+      fetchRealPrices().catch((err) => console.error("Periodic real-world price fetch failed:", err));
+    } else {
+      simulatePriceTick();
+    }
   }, 2000);
 }
 
 // Fetch live real-time market prices from external feeds
 export async function fetchRealPrices(): Promise<void> {
+  // Update last fetched timestamp to debounce / manage intervals accurately
+  lastRealFetchTime = Date.now();
+  
   try {
-    console.log("Fetching live real-time market price rates...");
+    console.log("Fetching live real-time market price rates from Coinbase...");
+    const cbRes = await fetch("https://api.coinbase.com/v2/exchange-rates?currency=USD");
+    if (!cbRes.ok) throw new Error(`Coinbase response status: ${cbRes.status}`);
+    
+    const cbData = (await cbRes.json()) as any;
+    if (cbData && cbData.data && cbData.data.rates) {
+      const rates = cbData.data.rates;
+      
+      if (rates.BTC && Number(rates.BTC) > 0) {
+        dbStore.updatePrice("BTC/USD", Number((1.0 / Number(rates.BTC)).toFixed(2)));
+      }
+      if (rates.ETH && Number(rates.ETH) > 0) {
+        dbStore.updatePrice("ETH/USD", Number((1.0 / Number(rates.ETH)).toFixed(2)));
+      }
+      if (rates.SOL && Number(rates.SOL) > 0) {
+        dbStore.updatePrice("SOL/USD", Number((1.0 / Number(rates.SOL)).toFixed(2)));
+      }
+      if (rates.USDT && Number(rates.USDT) > 0) {
+        dbStore.updatePrice("USDT/USD", Number((1.0 / Number(rates.USDT)).toFixed(4)));
+      } else {
+        dbStore.updatePrice("USDT/USD", 1.00);
+      }
+      
+      if (rates.EUR && Number(rates.EUR) > 0) {
+        dbStore.updatePrice("USD/EUR", Number(Number(rates.EUR).toFixed(4)));
+      }
+      if (rates.GBP && Number(rates.GBP) > 0) {
+        dbStore.updatePrice("USD/GBP", Number(Number(rates.GBP).toFixed(4)));
+      }
+      
+      console.log("Live real-time market price rates successfully updated from Coinbase!");
+      
+      // Broadcast the updated prices
+      if (broadcastCallback) {
+        broadcastCallback(dbStore.getPrices());
+      }
+      return;
+    }
+    throw new Error("Coinbase data rates payload is empty");
+  } catch (cbErr) {
+    console.log("Coinbase lookup failed, trying fallback APIs...", cbErr);
+  }
+
+  try {
+    console.log("Fetching live real-time market price rates from CryptoCompare/Frankfurter fallbacks...");
     
     // Fetch crypto prices from CryptoCompare
     const cryptoRes = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,SOL,USDT&tsyms=USD");

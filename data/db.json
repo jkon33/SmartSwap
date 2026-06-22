@@ -4,7 +4,7 @@
       "id": "usr_sjlgopfez",
       "name": "SmartSwap Admin",
       "email": "admin@smartswap.io",
-      "passwordHash": "$2b$10$SkhsHvWeNPnQk3wkEyiQSOUYG/svVtFI/OPfoF.I01n4Tq3kXtxx2",
+      "passwordHash": "$2b$10$UfP2A7.uEkXU95yZlVfGiuFgshuzCkxZSjpPoIE1TgWRHomPXXq5m",
       "role": "admin",
       "cryptoWallets": [],
       "bankAccounts": [],
@@ -123,7 +123,7 @@
       "id": "usr_cpf9rjtow",
       "name": "Don Jay",
       "email": "oluzeun21@gmail.com",
-      "passwordHash": "$2b$10$SkhsHvWeNPnQk3wkEyiQSOUYG/svVtFI/OPfoF.I01n4Tq3kXtxx2",
+      "passwordHash": "$2b$10$UfP2A7.uEkXU95yZlVfGiuFgshuzCkxZSjpPoIE1TgWRHomPXXq5m",
       "role": "admin",
       "cryptoWallets": [],
       "bankAccounts": [],
@@ -309,33 +309,33 @@
   "prices": [
     {
       "currencyPair": "BTC/USD",
-      "rate": 74749.85,
-      "lastUpdated": "2026-06-22T14:19:49.851Z"
+      "rate": 83878.11,
+      "lastUpdated": "2026-06-22T18:20:13.056Z"
     },
     {
       "currencyPair": "ETH/USD",
-      "rate": 2285.01,
-      "lastUpdated": "2026-06-22T14:19:49.851Z"
+      "rate": 2707.06,
+      "lastUpdated": "2026-06-22T18:20:13.057Z"
     },
     {
       "currencyPair": "SOL/USD",
-      "rate": 86.11,
-      "lastUpdated": "2026-06-22T14:19:49.851Z"
+      "rate": 94.61,
+      "lastUpdated": "2026-06-22T18:20:13.057Z"
     },
     {
       "currencyPair": "USDT/USD",
       "rate": 1,
-      "lastUpdated": "2026-06-22T14:19:49.851Z"
+      "lastUpdated": "2026-06-22T18:20:13.057Z"
     },
     {
       "currencyPair": "USD/EUR",
-      "rate": 0.8728,
-      "lastUpdated": "2026-06-22T14:19:49.851Z"
+      "rate": 0.873,
+      "lastUpdated": "2026-06-22T18:20:13.057Z"
     },
     {
       "currencyPair": "USD/GBP",
-      "rate": 0.7551,
-      "lastUpdated": "2026-06-22T14:19:49.852Z"
+      "rate": 0.7547,
+      "lastUpdated": "2026-06-22T18:20:13.057Z"
     }
   ],
   "assets": [
@@ -344,7 +344,7 @@
       "name": "Bitcoin",
       "type": "crypto",
       "isActive": true,
-      "rateToUSD": 68450,
+      "rateToUSD": 83878.11,
       "iconBg": "bg-amber-100 text-amber-600 border-amber-200"
     },
     {
@@ -352,7 +352,7 @@
       "name": "Ethereum",
       "type": "crypto",
       "isActive": true,
-      "rateToUSD": 3450,
+      "rateToUSD": 2707.06,
       "iconBg": "bg-indigo-100 text-indigo-600 border-indigo-200"
     },
     {
@@ -360,7 +360,7 @@
       "name": "Solana",
       "type": "crypto",
       "isActive": true,
-      "rateToUSD": 168.5,
+      "rateToUSD": 94.61,
       "iconBg": "bg-purple-100 text-purple-600 border-purple-200"
     },
     {
@@ -384,7 +384,7 @@
       "name": "Euro Coin",
       "type": "fiat",
       "isActive": true,
-      "rateToUSD": 1.087,
+      "rateToUSD": 1.145475,
       "iconBg": "bg-blue-100 text-blue-600 border-blue-200"
     },
     {
@@ -392,7 +392,7 @@
       "name": "British Pound",
       "type": "fiat",
       "isActive": true,
-      "rateToUSD": 1.266,
+      "rateToUSD": 1.32503,
       "iconBg": "bg-rose-100 text-rose-600 border-rose-200"
     }
   ]

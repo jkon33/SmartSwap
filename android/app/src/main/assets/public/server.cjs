@@ -731,6 +731,37 @@ var DbStore = class {
         lastUpdated: updatedTime
       });
     }
+    const [base, quote] = currencyPair.split("/");
+    if (base && quote && this.data.assets) {
+      if (quote === "USD") {
+        const assetIndex = this.data.assets.findIndex((a) => a.code.toUpperCase() === base.toUpperCase());
+        if (assetIndex !== -1) {
+          const oldRate = this.data.assets[assetIndex].rateToUSD;
+          if (oldRate !== rate) {
+            this.data.assets[assetIndex].rateToUSD = rate;
+            if (import_mongoose.default.connection.readyState === 1) {
+              AssetModel.updateOne({ code: base.toUpperCase() }, { $set: { rateToUSD: rate } }).catch(
+                (err) => console.error("Error updating asset rate to Mongo:", err)
+              );
+            }
+          }
+        }
+      } else if (base === "USD" && rate > 0) {
+        const assetIndex = this.data.assets.findIndex((a) => a.code.toUpperCase() === quote.toUpperCase());
+        if (assetIndex !== -1) {
+          const inverseRate = Number((1 / rate).toFixed(6));
+          const oldRate = this.data.assets[assetIndex].rateToUSD;
+          if (oldRate !== inverseRate) {
+            this.data.assets[assetIndex].rateToUSD = inverseRate;
+            if (import_mongoose.default.connection.readyState === 1) {
+              AssetModel.updateOne({ code: quote.toUpperCase() }, { $set: { rateToUSD: inverseRate } }).catch(
+                (err) => console.error("Error updating asset rate to Mongo:", err)
+              );
+            }
+          }
+        }
+      }
+    }
     this.saveToDisk();
     if (import_mongoose.default.connection.readyState === 1) {
       PriceModel.updateOne(
@@ -1449,17 +1480,61 @@ function simulatePriceTick() {
     broadcastCallback(dbStore.getPrices());
   }
 }
+var lastRealFetchTime = Date.now();
 function startPriceService() {
   if (intervalId) return;
   console.log("Starting Real-time Price Service...");
   fetchRealPrices().catch((err) => console.error("Initial real-world price fetch failed:", err));
   intervalId = setInterval(() => {
-    simulatePriceTick();
+    if (Date.now() - lastRealFetchTime > 6e4) {
+      console.log("Periodic trigger: synchronising with real-world market pricing...");
+      fetchRealPrices().catch((err) => console.error("Periodic real-world price fetch failed:", err));
+    } else {
+      simulatePriceTick();
+    }
   }, 2e3);
 }
 async function fetchRealPrices() {
+  lastRealFetchTime = Date.now();
   try {
-    console.log("Fetching live real-time market price rates...");
+    console.log("Fetching live real-time market price rates from Coinbase...");
+    const cbRes = await fetch("https://api.coinbase.com/v2/exchange-rates?currency=USD");
+    if (!cbRes.ok) throw new Error(`Coinbase response status: ${cbRes.status}`);
+    const cbData = await cbRes.json();
+    if (cbData && cbData.data && cbData.data.rates) {
+      const rates = cbData.data.rates;
+      if (rates.BTC && Number(rates.BTC) > 0) {
+        dbStore.updatePrice("BTC/USD", Number((1 / Number(rates.BTC)).toFixed(2)));
+      }
+      if (rates.ETH && Number(rates.ETH) > 0) {
+        dbStore.updatePrice("ETH/USD", Number((1 / Number(rates.ETH)).toFixed(2)));
+      }
+      if (rates.SOL && Number(rates.SOL) > 0) {
+        dbStore.updatePrice("SOL/USD", Number((1 / Number(rates.SOL)).toFixed(2)));
+      }
+      if (rates.USDT && Number(rates.USDT) > 0) {
+        dbStore.updatePrice("USDT/USD", Number((1 / Number(rates.USDT)).toFixed(4)));
+      } else {
+        dbStore.updatePrice("USDT/USD", 1);
+      }
+      if (rates.EUR && Number(rates.EUR) > 0) {
+        dbStore.updatePrice("USD/EUR", Number(Number(rates.EUR).toFixed(4)));
+      }
+      if (rates.GBP && Number(rates.GBP) > 0) {
+        dbStore.updatePrice("USD/GBP", Number(Number(rates.GBP).toFixed(4)));
+      }
+      console.log("Live real-time market price rates successfully updated from Coinbase!");
+      if (broadcastCallback) {
+        broadcastCallback(dbStore.getPrices());
+      }
+      return;
+    }
+    throw new Error("Coinbase data rates payload is empty");
+  } catch (cbErr) {
+    console.log("Coinbase lookup failed, trying fallback APIs...", cbErr);
+  }
+  try {
+    console.log("Fetching live real-time market price rates from CryptoCompare/Frankfurter fallbacks...");
     const cryptoRes = await fetch("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,SOL,USDT&tsyms=USD");
     const cryptoData = await cryptoRes.json();
     if (cryptoData && cryptoData.BTC && cryptoData.BTC.USD) {

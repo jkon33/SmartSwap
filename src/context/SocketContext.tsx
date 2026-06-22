@@ -45,10 +45,16 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         return envSocketUrl;
       }
 
-      // 3. Fallback to direct Cloud Run backend if hosted on Vercel (since Vercel doesn't proxy WebSockets)
+      // 3. Fallback to direct Cloud Run backend if hosted on Vercel or running in a Native Capacitor WebView
       if (typeof window !== "undefined") {
         const host = window.location.hostname;
-        if (host.includes("vercel.app") || host.includes("vercel")) {
+        const isCapacitor = 
+          (window as any).Capacitor || 
+          window.location.origin.startsWith("capacitor://") || 
+          window.location.origin.includes("http://localhost") || 
+          window.location.protocol === "file:";
+
+        if (host.includes("vercel.app") || host.includes("vercel") || isCapacitor) {
           return "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app";
         }
       }

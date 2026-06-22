@@ -9,28 +9,29 @@ export function useRealtimePrices() {
 
     // Helper to get rate in USD (i.e., how many USD is 1 unit of this currency)
     const getUSDValue = (currency: string): number => {
-      if (currency === "USD") return 1.0;
+      const curUpper = currency.toUpperCase();
+      if (curUpper === "USD") return 1.0;
+
+      // 1. Check for direct pair (e.g. BTC/USD)
+      const directPair = prices.find((p) => p.currencyPair === `${curUpper}/USD`);
+      if (directPair) {
+        return directPair.rate;
+      }
+
+      // 2. Check for inverse pair (e.g. USD/EUR)
+      const inversePair = prices.find((p) => p.currencyPair === `USD/${curUpper}`);
+      if (inversePair && inversePair.rate > 0) {
+        return 1.0 / inversePair.rate;
+      }
       
-      if (currency === "BTC") {
-        return prices.find((p) => p.currencyPair === "BTC/USD")?.rate || 68450;
-      }
-      if (currency === "ETH") {
-        return prices.find((p) => p.currencyPair === "ETH/USD")?.rate || 3450;
-      }
-      if (currency === "SOL") {
-        return prices.find((p) => p.currencyPair === "SOL/USD")?.rate || 168.5;
-      }
-      if (currency === "USDT") {
-        return prices.find((p) => p.currencyPair === "USDT/USD")?.rate || 1.0;
-      }
-      if (currency === "EUR") {
-        const usdEur = prices.find((p) => p.currencyPair === "USD/EUR")?.rate || 0.92;
-        return 1.0 / usdEur;
-      }
-      if (currency === "GBP") {
-        const usdGbp = prices.find((p) => p.currencyPair === "USD/GBP")?.rate || 0.79;
-        return 1.0 / usdGbp;
-      }
+      // 3. Resilient default fallbacks
+      if (curUpper === "BTC") return 68450;
+      if (curUpper === "ETH") return 3450;
+      if (curUpper === "SOL") return 168.5;
+      if (curUpper === "USDT") return 1.0;
+      if (curUpper === "EUR") return 1.087;
+      if (curUpper === "GBP") return 1.266;
+      
       return 1.0;
     };
 
@@ -38,30 +39,29 @@ export function useRealtimePrices() {
 
     // Convert USD amount back to toCur
     const usdToCurrencyRate = (currency: string): number => {
-      if (currency === "USD") return 1.0;
+      const curUpper = currency.toUpperCase();
+      if (curUpper === "USD") return 1.0;
+
+      // 1. Check for direct pair
+      const directPair = prices.find((p) => p.currencyPair === `${curUpper}/USD`);
+      if (directPair && directPair.rate > 0) {
+        return 1.0 / directPair.rate;
+      }
+
+      // 2. Check for inverse pair
+      const inversePair = prices.find((p) => p.currencyPair === `USD/${curUpper}`);
+      if (inversePair) {
+        return inversePair.rate;
+      }
       
-      if (currency === "BTC") {
-        const btcUsd = prices.find((p) => p.currencyPair === "BTC/USD")?.rate || 68450;
-        return 1.0 / btcUsd;
-      }
-      if (currency === "ETH") {
-        const ethUsd = prices.find((p) => p.currencyPair === "ETH/USD")?.rate || 3450;
-        return 1.0 / ethUsd;
-      }
-      if (currency === "SOL") {
-        const solUsd = prices.find((p) => p.currencyPair === "SOL/USD")?.rate || 168.5;
-        return 1.0 / solUsd;
-      }
-      if (currency === "USDT") {
-        const usdtUsd = prices.find((p) => p.currencyPair === "USDT/USD")?.rate || 1.0;
-        return 1.0 / usdtUsd;
-      }
-      if (currency === "EUR") {
-        return prices.find((p) => p.currencyPair === "USD/EUR")?.rate || 0.92;
-      }
-      if (currency === "GBP") {
-        return prices.find((p) => p.currencyPair === "USD/GBP")?.rate || 0.79;
-      }
+      // 3. Resilient default fallbacks
+      if (curUpper === "BTC") return 1.0 / 68450;
+      if (curUpper === "ETH") return 1.0 / 3450;
+      if (curUpper === "SOL") return 1.0 / 168.5;
+      if (curUpper === "USDT") return 1.0;
+      if (curUpper === "EUR") return 0.92;
+      if (curUpper === "GBP") return 0.79;
+      
       return 1.0;
     };
 

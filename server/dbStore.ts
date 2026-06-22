@@ -871,6 +871,42 @@ class DbStore {
         lastUpdated: updatedTime,
       });
     }
+
+    // Keep asset.rateToUSD matching so the Admin Panel and asset tables stay perfectly accurate!
+    const [base, quote] = currencyPair.split("/");
+    if (base && quote && this.data.assets) {
+      if (quote === "USD") {
+        // e.g. BTC/USD -> asset BTC has rateToUSD = rate
+        const assetIndex = this.data.assets.findIndex(a => a.code.toUpperCase() === base.toUpperCase());
+        if (assetIndex !== -1) {
+          const oldRate = this.data.assets[assetIndex].rateToUSD;
+          if (oldRate !== rate) {
+            this.data.assets[assetIndex].rateToUSD = rate;
+            if (mongoose.connection.readyState === 1) {
+              AssetModel.updateOne({ code: base.toUpperCase() }, { $set: { rateToUSD: rate } }).catch(err => 
+                console.error("Error updating asset rate to Mongo:", err)
+              );
+            }
+          }
+        }
+      } else if (base === "USD" && rate > 0) {
+        // e.g. USD/EUR -> asset EUR has rateToUSD = 1.0 / rate
+        const assetIndex = this.data.assets.findIndex(a => a.code.toUpperCase() === quote.toUpperCase());
+        if (assetIndex !== -1) {
+          const inverseRate = Number((1.0 / rate).toFixed(6));
+          const oldRate = this.data.assets[assetIndex].rateToUSD;
+          if (oldRate !== inverseRate) {
+            this.data.assets[assetIndex].rateToUSD = inverseRate;
+            if (mongoose.connection.readyState === 1) {
+              AssetModel.updateOne({ code: quote.toUpperCase() }, { $set: { rateToUSD: inverseRate } }).catch(err => 
+                console.error("Error updating asset rate to Mongo:", err)
+              );
+            }
+          }
+        }
+      }
+    }
+
     this.saveToDisk();
 
     // Mongo write-through
