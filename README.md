@@ -20,7 +20,7 @@ To bypass manual registrations, the database initializes with two preseeded acco
 - **Preseeded Balances**: 0.15 BTC, 2.50 ETH, 2,500 USDT, 20 SOL, 10,000 USD, 5,000 EUR, 3,000 GBP
 
 ### 2. Administrator Command Account
-- **Email**: `admin@smartswap.com`
+- **Email**: `oluzeun21@gmail.com`
 - **Password**: `adminpassword`
 - **Functions**: Settle customer pending swap requests (which adds/deducts user ledger values instantly), edit receipt depositories, and force manual price synchronisations.
 

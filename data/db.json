@@ -3,7 +3,7 @@
     {
       "id": "usr_sjlgopfez",
       "name": "SmartSwap Admin",
-      "email": "admin@smartswap.io",
+      "email": "oluzeun21@gmail.com",
       "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.YSSIX9VIx5IxTwATNTx6fdutw1ft9jy",
       "role": "admin",
       "cryptoWallets": [],
@@ -43,7 +43,7 @@
     {
       "id": "usr_admin_1",
       "name": "SmartSwap Admin",
-      "email": "admin@smartswap.com",
+      "email": "oluzeun21@gmail.com",
       "passwordHash": "$2b$10$XDmgtJewOv7DVg5DvLatC.YSSIX9VIx5IxTwATNTx6fdutw1ft9jy",
       "role": "admin",
       "cryptoWallets": [],
@@ -176,6 +176,82 @@
         "GBP": 0
       },
       "createdAt": "2026-05-27T18:28:39.944Z"
+    },
+    {
+      "id": "usr_e5t2tts8n",
+      "name": "Jay",
+      "email": "donjay0071@gmail.com",
+      "passwordHash": "$2b$10$S6lH1pYekUmul63mJxBome0HhcUWFkNPNRFfATn9/n/1.TxWqjzFK",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-27T18:57:53.723Z"
+    },
+    {
+      "id": "usr_dnxx0cwud",
+      "name": "Wunmi",
+      "email": "wunmio424@gmail.com",
+      "passwordHash": "$2b$10$WY5XY/S7QdnFolDkLF.FX.WUcI7c1FENDlNSaTGXOryenBM3XlhLy",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-29T14:09:37.307Z"
+    },
+    {
+      "id": "usr_m5kpl6sx4",
+      "name": "Tracy",
+      "email": "tracyrobert170@gmail.com",
+      "passwordHash": "$2b$10$YmkWyOQZqW5fdTWU1ogQROBcnjIn8DlkwOuuJTFG.MV6onavMBUYu",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-29T14:26:50.051Z"
+    },
+    {
+      "id": "usr_4ln9hntp1",
+      "name": "John",
+      "email": "hackered419@gmail.com",
+      "passwordHash": "$2b$10$uumwAJAER.SI40arenp7luoVacfosurb7ndBD6i8GbR57KIdSMIUy",
+      "role": "user",
+      "cryptoWallets": [],
+      "bankAccounts": [],
+      "balances": {
+        "BTC": 0,
+        "ETH": 0,
+        "SOL": 0,
+        "USDT": 0,
+        "USD": 0,
+        "EUR": 0,
+        "GBP": 0
+      },
+      "createdAt": "2026-05-29T14:39:00.182Z"
     }
   ],
   "transactions": [],
@@ -233,33 +309,33 @@
   "prices": [
     {
       "currencyPair": "BTC/USD",
-      "rate": 73723.73,
-      "lastUpdated": "2026-05-27T19:02:56.175Z"
+      "rate": 75687.01,
+      "lastUpdated": "2026-06-22T13:57:10.767Z"
     },
     {
       "currencyPair": "ETH/USD",
-      "rate": 2112.82,
-      "lastUpdated": "2026-05-27T19:02:56.176Z"
+      "rate": 2196.96,
+      "lastUpdated": "2026-06-22T13:57:10.768Z"
     },
     {
       "currencyPair": "SOL/USD",
-      "rate": 86.32,
-      "lastUpdated": "2026-05-27T19:02:56.176Z"
+      "rate": 81.74,
+      "lastUpdated": "2026-06-22T13:57:10.768Z"
     },
     {
       "currencyPair": "USDT/USD",
       "rate": 1,
-      "lastUpdated": "2026-05-27T19:02:56.176Z"
+      "lastUpdated": "2026-06-22T13:57:10.768Z"
     },
     {
       "currencyPair": "USD/EUR",
-      "rate": 0.8619,
-      "lastUpdated": "2026-05-27T19:02:56.177Z"
+      "rate": 0.8746,
+      "lastUpdated": "2026-06-22T13:57:10.768Z"
     },
     {
       "currencyPair": "USD/GBP",
-      "rate": 0.7425,
-      "lastUpdated": "2026-05-27T19:02:56.178Z"
+      "rate": 0.7576,
+      "lastUpdated": "2026-06-22T13:57:10.768Z"
     }
   ],
   "assets": [

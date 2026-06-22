@@ -4,7 +4,7 @@ export async function sendVerificationEmail(email: string, name: string, code: s
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
   const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
+  const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, "") : undefined;
 
   let senderAddress = process.env.SMTP_FROM;
   if (!senderAddress) {
@@ -14,9 +14,6 @@ export async function sendVerificationEmail(email: string, name: string, code: s
       senderAddress = `"SmartSwap" <no-reply@smartswap.com>`;
     }
   }
-
-  const appUrl = (process.env.APP_URL || "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app").replace(/\/$/, "");
-  const verificationLink = `${appUrl}/api/auth/verify-email?email=${encodeURIComponent(email)}&token=${token}`;
 
   const emailSubject = "Verify Your SmartSwap Account";
   const emailHtml = `
@@ -29,22 +26,13 @@ export async function sendVerificationEmail(email: string, name: string, code: s
       <p style="font-size: 16px; line-height: 1.5; color: #334155;">Hello <strong>${name}</strong>,</p>
       
       <p style="font-size: 15px; line-height: 1.5; color: #334155;">
-        Thank you for choosing SmartSwap! To start exchanging with zero-slippage quotes and managing your cross-chain assets, please verify your email address.
+        Thank you for choosing SmartSwap! To start exchanging with zero-slippage quotes and managing your cross-chain assets, please verify your email address by entering the 6-digit verification code below in the verification screen.
       </p>
       
       <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; text-align: center; margin: 24px 0;">
         <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b; font-weight: 500; text-transform: uppercase;">Your 6-Digit Verification Code</p>
         <div style="font-size: 32px; font-weight: bold; color: #0f172a; letter-spacing: 0.15em; font-family: monospace;">${code}</div>
       </div>
-
-      <div style="text-align: center; margin: 28px 0;">
-        <a href="${verificationLink}" style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; font-size: 15px; display: inline-block;">Verify Email Address</a>
-      </div>
-
-      <p style="font-size: 13px; line-height: 1.5; color: #64748b;">
-        Or copy and paste this link into your browser:<br />
-        <a href="${verificationLink}" style="color: #2563eb; word-break: break-all;">${verificationLink}</a>
-      </p>
       
       <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 24px 0;" />
       
@@ -116,7 +104,6 @@ export async function sendVerificationEmail(email: string, name: string, code: s
   console.log(`TO: ${email}`);
   console.log(`SUBJECT: ${emailSubject}`);
   console.log(`CODE: ${code}`);
-  console.log(`LINK: ${verificationLink}`);
   console.log(`==================================================================\n`);
 
   return false;

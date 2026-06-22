@@ -219,7 +219,7 @@ class DbStore {
       {
         id: "usr_admin_1",
         name: "SmartSwap Admin",
-        email: "admin@smartswap.com",
+        email: "oluzeun21@gmail.com",
         passwordHash: adminPasswordHash,
         role: "admin",
         cryptoWallets: [],
@@ -352,7 +352,7 @@ class DbStore {
       {
         id: "usr_admin_1",
         name: "SmartSwap Admin",
-        email: "admin@smartswap.com",
+        email: "oluzeun21@gmail.com",
         passwordHash: adminPasswordHash,
         role: "admin",
         cryptoWallets: [],

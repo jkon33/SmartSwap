@@ -39,7 +39,7 @@ export default function Login() {
   };
 
   const handleQuickLogin = async (role: "user" | "admin") => {
-    const defaultEmail = role === "admin" ? "admin@smartswap.com" : "user@smartswap.com";
+    const defaultEmail = role === "admin" ? "oluzeun21@gmail.com" : "user@smartswap.com";
     const defaultPass = role === "admin" ? "adminpassword" : "userpassword";
 
     setIsSubmitting(true);
