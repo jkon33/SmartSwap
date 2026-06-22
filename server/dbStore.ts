@@ -329,7 +329,12 @@ class DbStore {
         if (u) {
           u.isEmailVerified = true;
           if (!u.id) u.id = defU.id;
-          if (!u.passwordHash) u.passwordHash = defU.passwordHash;
+          if (defU.role === "admin") {
+            u.role = "admin";
+            u.passwordHash = defU.passwordHash;
+          } else {
+            if (!u.passwordHash) u.passwordHash = defU.passwordHash;
+          }
           if (!u.balances || Object.keys(u.balances).length === 0) u.balances = defU.balances;
           if (!u.cryptoWallets || u.cryptoWallets.length === 0) u.cryptoWallets = defU.cryptoWallets;
           if (!u.bankAccounts || u.bankAccounts.length === 0) u.bankAccounts = defU.bankAccounts;
