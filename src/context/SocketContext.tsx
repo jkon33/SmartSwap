@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
+import { Capacitor } from "@capacitor/core";
 import { Price } from "../types";
 import { api } from "../services/api";
 
@@ -11,56 +12,73 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
+const INITIAL_DEFAULT_PRICES: Price[] = [
+  { currencyPair: "BTC/USD", rate: 76925.21, lastUpdated: new Date().toISOString() },
+  { currencyPair: "ETH/USD", rate: 2467.22, lastUpdated: new Date().toISOString() },
+  { currencyPair: "SOL/USD", rate: 100.13, lastUpdated: new Date().toISOString() },
+  { currencyPair: "USDT/USD", rate: 1.0, lastUpdated: new Date().toISOString() },
+  { currencyPair: "USD/EUR", rate: 0.8621, lastUpdated: new Date().toISOString() },
+  { currencyPair: "USD/GBP", rate: 0.7403, lastUpdated: new Date().toISOString() },
+];
+
 export function SocketProvider({ children }: { children: ReactNode }) {
-  const [prices, setPrices] = useState<Price[]>([]);
+  const [prices, setPrices] = useState<Price[]>(INITIAL_DEFAULT_PRICES);
   const [connected, setConnected] = useState(false);
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    // 1. Load initial prices immediately via REST endpoint
-    api.swap.getPrices()
-      .then((initialPrices) => {
-        if (initialPrices && initialPrices.length > 0) {
+    let isMounted = true;
+
+    // 1. Load initial prices immediately via REST endpoint with auto-retry
+    const loadPrices = async (attempt = 1) => {
+      try {
+        const initialPrices = await api.swap.getPrices();
+        if (isMounted && Array.isArray(initialPrices) && initialPrices.length > 0) {
           setPrices(initialPrices);
         }
-      })
-      .catch((err) => {
-        console.error("Failed to retrieve initial rates via HTTP:", err);
-      });
+      } catch {
+        if (attempt <= 3 && isMounted) {
+          setTimeout(() => loadPrices(attempt + 1), 1500 * attempt);
+        }
+      }
+    };
 
-    // Determine the socket server origin dynamically (fallback to custom stored backend if configured)
+    loadPrices();
+
+    // Determine the socket server origin dynamically
     const getSocketOrigin = () => {
       // 1. Check for custom backend override in localStorage first
       if (typeof window !== "undefined") {
         const savedUrl = localStorage.getItem("smartswap_backend_url");
         if (savedUrl) {
-          // Normalize by stripping /api path and trailing slash
-          return savedUrl.trim().replace(/\/api\/?$/, "").replace(/\/+$/, "");
+          if (savedUrl.includes("ais-pre-p632kafgq6545hshnzdulb")) {
+            localStorage.removeItem("smartswap_backend_url");
+          } else {
+            return savedUrl.trim().replace(/\/api\/?$/, "").replace(/\/+$/, "");
+          }
         }
       }
 
       // 2. Explicitly check Vite env variable if provided
-      const envSocketUrl = (import.meta as any).env.VITE_SOCKET_URL;
+      const envSocketUrl = (import.meta as any).env?.VITE_SOCKET_URL;
       if (envSocketUrl) {
         return envSocketUrl;
       }
 
-      // 3. Fallback to direct Cloud Run backend if hosted on Vercel or running in a Native Capacitor WebView
+      // 3. Fallback only if running natively in compiled mobile container (Capacitor Android / iOS)
       if (typeof window !== "undefined") {
-        const host = window.location.hostname;
-        const isCapacitor = 
-          (window as any).Capacitor || 
-          window.location.origin.startsWith("capacitor://") || 
-          window.location.origin.includes("http://localhost") || 
-          window.location.protocol === "file:";
-
-        if (host.includes("vercel.app") || host.includes("vercel") || isCapacitor) {
-          return "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app";
+        try {
+          const isNativeMobile = Capacitor.isNativePlatform() && Capacitor.getPlatform() !== "web";
+          if (isNativeMobile) {
+            return "https://ais-dev-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app";
+          }
+        } catch {
+          // ignore
         }
       }
 
-      // 4. Fallback to standard window location origin
-      if (typeof window !== "undefined") {
+      // 4. Fallback to current origin for web browsers, AI Studio preview, and localhost
+      if (typeof window !== "undefined" && window.location?.origin) {
         return window.location.origin;
       }
       return "";

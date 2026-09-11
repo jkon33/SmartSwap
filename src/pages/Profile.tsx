@@ -1,7 +1,8 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../services/api";
-import { Wallet, Building, Plus, Landmark, ShieldCheck, CheckSquare, Trash, Sparkles } from "lucide-react";
+import { Wallet, Building, Plus, Landmark, ShieldCheck, CheckSquare, Trash, Sparkles, Smartphone } from "lucide-react";
+import { AndroidModal } from "../components/AndroidModal";
 import toast from "react-hot-toast";
 
 export default function Profile() {
@@ -24,6 +25,7 @@ export default function Profile() {
 
   const [isSubmittingCrypto, setIsSubmittingCrypto] = useState(false);
   const [isSubmittingBank, setIsSubmittingBank] = useState(false);
+  const [showAndroidModal, setShowAndroidModal] = useState(false);
 
   const fetchPayoutDetails = async () => {
     try {
@@ -328,9 +330,46 @@ export default function Profile() {
             </form>
           </div>
 
+          {/* Android Mobile Client Card */}
+          <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 to-teal-50/50 p-6 shadow-md shadow-emerald-100/50">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-xs">
+                <Smartphone className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-emerald-950">
+                  Android Mobile App &amp; APK
+                </h3>
+                <p className="text-[11px] text-emerald-700">
+                  Native Android client (Package: <span className="font-mono font-semibold">com.smartswap.app</span>)
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-emerald-900 leading-relaxed mb-4">
+              SmartSwap is packaged with Capacitor for native Android deployment and is also installable as a standalone app on any Android device.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setShowAndroidModal(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition"
+              >
+                <Smartphone className="h-4 w-4" />
+                <span>Android App &amp; APK Builder</span>
+              </button>
+            </div>
+          </div>
+
         </div>
 
       </div>
+
+      {/* Android Modal */}
+      <AndroidModal
+        isOpen={showAndroidModal}
+        onClose={() => setShowAndroidModal(false)}
+      />
 
     </div>
   );

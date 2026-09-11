@@ -1,36 +1,42 @@
-const getApiBase = () => {
+import { Capacitor } from "@capacitor/core";
+
+export const getApiBase = () => {
   // 1. Check for custom backend override in localStorage first
   if (typeof window !== "undefined") {
     const savedUrl = localStorage.getItem("smartswap_backend_url");
     if (savedUrl) {
-      const cleanUrl = savedUrl.trim().replace(/\/+$/, ""); // remove trailing slashes
-      return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
+      // Invalidate old broken pre-release URLs if present
+      if (savedUrl.includes("ais-pre-p632kafgq6545hshnzdulb")) {
+        localStorage.removeItem("smartswap_backend_url");
+      } else {
+        const cleanUrl = savedUrl.trim().replace(/\/+$/, "");
+        return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
+      }
     }
   }
 
   // 2. Explicitly check Vite env variable if provided
-  const envUrl = (import.meta as any).env.VITE_API_URL;
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
   if (envUrl) {
     const cleanUrl = envUrl.trim().replace(/\/+$/, "");
     return cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
   }
 
-  // 3. Fallback to default relative path, or the secure deployment URL if running in a native mobile container
+  // 3. Fallback only if running natively in compiled mobile container (Capacitor Android / iOS)
   if (typeof window !== "undefined") {
-    const isCapacitor = 
-      (window as any).Capacitor || 
-      window.location.origin.startsWith("capacitor://") || 
-      window.location.origin.includes("http://localhost") || 
-      window.location.protocol === "file:";
-    if (isCapacitor) {
-      return "https://ais-pre-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app/api";
+    try {
+      const isNativeMobile = Capacitor.isNativePlatform() && Capacitor.getPlatform() !== "web";
+      if (isNativeMobile) {
+        return "https://ais-dev-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app/api";
+      }
+    } catch {
+      // ignore
     }
   }
 
+  // 4. Default for web browsers, previews, and local dev
   return "/api";
 };
-
-const API_BASE = getApiBase();
 
 function getHeaders() {
   const token = localStorage.getItem("smartswap_token");
@@ -44,21 +50,48 @@ function getHeaders() {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const url = `${getApiBase()}${path}`;
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...getHeaders(),
-      ...(options.headers || {}),
-    },
-  });
+  const base = getApiBase();
+  const url = `${base}${path}`;
 
-  const payload = await response.json();
-  if (!response.ok || payload.success === false) {
-    throw new Error(payload.message || "An unexpected error occurred.");
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...getHeaders(),
+        ...(options.headers || {}),
+      },
+    });
+
+    const payload = await response.json();
+    if (!response.ok || payload.success === false) {
+      throw new Error(payload.message || "An unexpected error occurred.");
+    }
+
+    return payload.data as T;
+  } catch (err: any) {
+    // If request failed and we were trying a custom/remote base, fallback to local relative /api
+    if (base !== "/api") {
+      try {
+        const fallbackUrl = `/api${path}`;
+        const fallbackRes = await fetch(fallbackUrl, {
+          ...options,
+          headers: {
+            ...getHeaders(),
+            ...(options.headers || {}),
+          },
+        });
+        if (fallbackRes.ok) {
+          const payload = await fallbackRes.json();
+          if (payload.success !== false) {
+            return payload.data as T;
+          }
+        }
+      } catch {
+        // continue to throw original error
+      }
+    }
+    throw err;
   }
-
-  return payload.data as T;
 }
 
 export const api = {
