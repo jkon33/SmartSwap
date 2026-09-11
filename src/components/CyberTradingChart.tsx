@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef, useEffect } from "react";
-import { TrendingUp, TrendingDown, BarChart2, Activity, Zap, Maximize2 } from "lucide-react";
+import { useState, useMemo, useRef, useEffect, TouchEvent } from "react";
+import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 
 interface CandleData {
   time: string;
@@ -31,9 +31,11 @@ export default function CyberTradingChart({
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (entry.contentRect.width > 0) {
+          const w = entry.contentRect.width;
+          const h = w < 480 ? 240 : w < 768 ? 280 : 320;
           setDimensions({
-            width: Math.max(300, entry.contentRect.width),
-            height: 320,
+            width: Math.max(280, w),
+            height: h,
           });
         }
       }
@@ -94,9 +96,11 @@ export default function CyberTradingChart({
   const isOverallBullish = activeCandle && activeCandle.close >= activeCandle.open;
 
   // Coordinate transforms
-  const chartHeight = dimensions.height - 50;
-  const chartWidth = dimensions.width - 70;
-  const candleSlotWidth = chartWidth / candles.length;
+  const chartHeight = dimensions.height - 45;
+  const isSmallScreen = dimensions.width < 500;
+  const rightMargin = isSmallScreen ? 55 : 70;
+  const chartWidth = Math.max(200, dimensions.width - rightMargin);
+  const candleSlotWidth = chartWidth / (candles.length || 1);
   const candleBodyWidth = Math.max(2, candleSlotWidth * 0.65);
 
   const getY = (val: number) => {
@@ -122,8 +126,19 @@ export default function CyberTradingChart({
     return `${areaPath} L ${lastX.toFixed(1)} ${chartHeight} L ${firstX.toFixed(1)} ${chartHeight} Z`;
   }, [areaPath, candles, candleSlotWidth, chartHeight]);
 
+  // Touch tracking for mobile / tablet
+  const handleTouchMove = (e: TouchEvent<SVGSVGElement>) => {
+    if (!containerRef.current || candles.length === 0) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - rect.left;
+    const idx = Math.floor(touchX / candleSlotWidth);
+    if (idx >= 0 && idx < candles.length) {
+      setHoveredCandle(candles[idx]);
+    }
+  };
+
   return (
-    <div className="cyber-card rounded-2xl p-5 relative overflow-hidden border border-cyan-400/30">
+    <div className="cyber-card rounded-2xl p-4 sm:p-5 relative overflow-hidden border border-cyan-400/30">
       {/* L-shaped corner cyber brackets */}
       <span className="corner-bracket-tl" />
       <span className="corner-bracket-tr" />
@@ -131,91 +146,99 @@ export default function CyberTradingChart({
       <span className="corner-bracket-br" />
 
       {/* Header bar with controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-cyan-500/20">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-cyan-950/60 border border-cyan-400/40 text-cyan-400">
-            <Activity className="h-5 w-5 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-orbitron font-black text-lg tracking-wider text-white">
-                {pair}
-              </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-400/10 text-cyan-400 border border-cyan-400/40">
-                TERMINAL v2.6
-              </span>
+      <div className="flex flex-col gap-3 pb-3 sm:pb-4 border-b border-cyan-500/20">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-1.5 sm:p-2 rounded-lg bg-cyan-950/60 border border-cyan-400/40 text-cyan-400 shrink-0">
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 animate-pulse" />
             </div>
-            <div className="flex items-center gap-2 mt-0.5 font-mono text-xs">
-              <span className="text-white font-bold text-sm">
-                ${(currentPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={`flex items-center text-[11px] font-bold ${isOverallBullish ? "text-[#39FF14] glow-text-green" : "text-[#FF0055]"}`}>
-                {isOverallBullish ? <TrendingUp className="h-3 w-3 mr-0.5" /> : <TrendingDown className="h-3 w-3 mr-0.5" />}
-                {isOverallBullish ? "+2.48%" : "-1.12%"}
-              </span>
+            <div>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h3 className="font-orbitron font-black text-base sm:text-lg tracking-wider text-white">
+                  {pair}
+                </h3>
+                <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold bg-cyan-400/10 text-cyan-400 border border-cyan-400/40">
+                  LIVE
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mt-0.5 font-mono text-xs">
+                <span className="text-white font-bold text-xs sm:text-sm">
+                  ${(currentPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <span className={`flex items-center text-[10px] sm:text-[11px] font-bold ${isOverallBullish ? "text-[#39FF14] glow-text-green" : "text-[#FF0055]"}`}>
+                  {isOverallBullish ? <TrendingUp className="h-3 w-3 mr-0.5" /> : <TrendingDown className="h-3 w-3 mr-0.5" />}
+                  {isOverallBullish ? "+2.48%" : "-1.12%"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Switchers (Compact & Responsive) */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {/* Chart Type Toggle */}
+            <div className="flex items-center rounded-lg bg-[#05060A] p-0.5 sm:p-1 border border-cyan-500/25">
+              <button
+                onClick={() => setChartType("candle")}
+                className={`px-2 py-1 text-[11px] sm:text-xs font-mono font-bold rounded transition-all ${
+                  chartType === "candle"
+                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400 shadow-[0_0_8px_rgba(0,240,255,0.4)]"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Candles
+              </button>
+              <button
+                onClick={() => setChartType("area")}
+                className={`px-2 py-1 text-[11px] sm:text-xs font-mono font-bold rounded transition-all ${
+                  chartType === "area"
+                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400 shadow-[0_0_8px_rgba(0,240,255,0.4)]"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Area
+              </button>
+            </div>
+
+            {/* Timeframe Toggle */}
+            <div className="flex items-center rounded-lg bg-[#05060A] p-0.5 sm:p-1 border border-cyan-500/25 text-[11px] sm:text-xs font-mono">
+              {(["1H", "24H", "7D", "30D"] as const).map((tf) => (
+                <button
+                  key={tf}
+                  onClick={() => setTimeframe(tf)}
+                  className={`px-1.5 sm:px-2 py-0.5 sm:py-1 font-bold rounded transition-all ${
+                    timeframe === tf
+                      ? "bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-400 shadow-[0_0_8px_rgba(255,0,229,0.4)]"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {tf}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* OHLC readout */}
+        {/* OHLC readout (Responsive flex) */}
         {activeCandle && (
-          <div className="hidden md:flex items-center gap-4 text-[11px] font-mono px-3 py-1.5 rounded-lg bg-[#05060A]/80 border border-cyan-500/20 text-slate-300">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] font-mono px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-[#05060A]/80 border border-cyan-500/20 text-slate-300 overflow-x-auto">
             <div><span className="text-slate-500">O:</span> ${(activeCandle.open).toFixed(2)}</div>
             <div><span className="text-slate-500">H:</span> <span className="text-[#39FF14]">${(activeCandle.high).toFixed(2)}</span></div>
             <div><span className="text-slate-500">L:</span> <span className="text-[#FF0055]">${(activeCandle.low).toFixed(2)}</span></div>
             <div><span className="text-slate-500">C:</span> <span className="text-cyan-400 font-bold">${(activeCandle.close).toFixed(2)}</span></div>
-            <div><span className="text-slate-500">VOL:</span> {activeCandle.volume}k</div>
+            <div className="hidden sm:inline"><span className="text-slate-500">VOL:</span> {activeCandle.volume}k</div>
           </div>
         )}
-
-        {/* Switchers */}
-        <div className="flex items-center gap-2">
-          {/* Chart Type Toggle */}
-          <div className="flex items-center rounded-lg bg-[#05060A] p-1 border border-cyan-500/25">
-            <button
-              onClick={() => setChartType("candle")}
-              className={`px-2.5 py-1 text-xs font-mono font-bold rounded transition-all ${
-                chartType === "candle"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400 shadow-[0_0_8px_rgba(0,240,255,0.4)]"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Candles
-            </button>
-            <button
-              onClick={() => setChartType("area")}
-              className={`px-2.5 py-1 text-xs font-mono font-bold rounded transition-all ${
-                chartType === "area"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400 shadow-[0_0_8px_rgba(0,240,255,0.4)]"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Line Area
-            </button>
-          </div>
-
-          {/* Timeframe Toggle */}
-          <div className="flex items-center rounded-lg bg-[#05060A] p-1 border border-cyan-500/25 text-xs font-mono">
-            {(["1H", "24H", "7D", "30D"] as const).map((tf) => (
-              <button
-                key={tf}
-                onClick={() => setTimeframe(tf)}
-                className={`px-2 py-1 font-bold rounded transition-all ${
-                  timeframe === tf
-                    ? "bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-400 shadow-[0_0_8px_rgba(255,0,229,0.4)]"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                {tf}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* SVG Canvas Area */}
-      <div ref={containerRef} className="relative w-full pt-4 cursor-crosshair">
-        <svg width={dimensions.width} height={dimensions.height} className="overflow-visible select-none">
+      <div ref={containerRef} className="relative w-full pt-2 sm:pt-4 cursor-crosshair overflow-hidden">
+        <svg
+          width={dimensions.width}
+          height={dimensions.height}
+          onTouchStart={handleTouchMove}
+          onTouchMove={handleTouchMove}
+          className="overflow-visible select-none"
+        >
           <defs>
             {/* Area Gradient */}
             <linearGradient id="cyberAreaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -249,10 +272,10 @@ export default function CyberTradingChart({
                   strokeDasharray="4 4"
                 />
                 <text
-                  x={chartWidth + 8}
+                  x={chartWidth + 6}
                   y={y + 4}
                   fill="#64748B"
-                  fontSize="10"
+                  fontSize={isSmallScreen ? "8" : "10"}
                   fontFamily="JetBrains Mono, monospace"
                 >
                   ${price.toFixed(price > 100 ? 0 : 2)}
@@ -276,18 +299,18 @@ export default function CyberTradingChart({
                 filter="url(#neonGlowCyan)"
               />
               <rect
-                x={chartWidth + 4}
-                y={getY(currentPrice) - 9}
-                width={dimensions.width - chartWidth - 6}
-                height={18}
-                rx={4}
+                x={chartWidth + 2}
+                y={getY(currentPrice) - 8}
+                width={Math.max(45, dimensions.width - chartWidth - 4)}
+                height={16}
+                rx={3}
                 fill="#00F0FF"
               />
               <text
-                x={chartWidth + 8}
+                x={chartWidth + 5}
                 y={getY(currentPrice) + 4}
                 fill="#05060A"
-                fontSize="10"
+                fontSize={isSmallScreen ? "8" : "9"}
                 fontWeight="bold"
                 fontFamily="JetBrains Mono, monospace"
               >
@@ -359,7 +382,7 @@ export default function CyberTradingChart({
                 d={areaPath}
                 fill="none"
                 stroke="#00F0FF"
-                strokeWidth="2.5"
+                strokeWidth="2"
                 filter="url(#neonGlowCyan)"
               />
               {/* Pulsing head node on latest price point */}
@@ -367,7 +390,7 @@ export default function CyberTradingChart({
                 <circle
                   cx={(candles.length - 1) * candleSlotWidth + candleSlotWidth / 2}
                   cy={getY(candles[candles.length - 1].close)}
-                  r="5"
+                  r="4"
                   fill="#00F0FF"
                   filter="url(#neonGlowCyan)"
                   className="animate-ping"
@@ -378,16 +401,17 @@ export default function CyberTradingChart({
 
           {/* Time axis labels */}
           {candles.map((c, idx) => {
-            if (idx % Math.ceil(candles.length / 6) === 0) {
+            const step = isSmallScreen ? Math.ceil(candles.length / 4) : Math.ceil(candles.length / 6);
+            if (idx % step === 0) {
               const x = idx * candleSlotWidth + candleSlotWidth / 2;
               return (
                 <text
                   key={idx}
                   x={x}
-                  y={chartHeight + 20}
+                  y={chartHeight + 16}
                   textAnchor="middle"
                   fill="#64748B"
-                  fontSize="10"
+                  fontSize={isSmallScreen ? "8" : "10"}
                   fontFamily="JetBrains Mono, monospace"
                 >
                   {c.time}
@@ -400,15 +424,15 @@ export default function CyberTradingChart({
       </div>
 
       {/* Cyber status footer note */}
-      <div className="mt-3 flex items-center justify-between text-[10px] font-mono text-cyan-400/70 pt-2 border-t border-cyan-500/10">
-        <span className="flex items-center gap-1.5">
-          <span className="relative flex h-1.5 w-1.5">
+      <div className="mt-2 sm:mt-3 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-cyan-400/70 pt-2 border-t border-cyan-500/10">
+        <span className="flex items-center gap-1.5 truncate">
+          <span className="relative flex h-1.5 w-1.5 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00F0FF] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00F0FF]"></span>
           </span>
-          FEED: MULTI-EXCHANGE AGGREGATE WEBSOCKET (2000MS INTERVAL)
+          <span className="truncate">ORACLE WEBSOCKET FEED (2000MS)</span>
         </span>
-        <span className="hidden sm:inline text-slate-500">DEFI SLIPPAGE ORACLE: ACTIVE</span>
+        <span className="hidden sm:inline text-slate-500 shrink-0">DEFI SLIPPAGE: 0%</span>
       </div>
     </div>
   );
