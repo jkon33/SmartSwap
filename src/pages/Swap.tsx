@@ -1,16 +1,33 @@
 import SwapCard from "../components/SwapCard";
-import { Info, Sparkles, Key, CheckSquare, Zap, ShieldAlert } from "lucide-react";
+import { Info, Zap, ShieldCheck, ArrowRightLeft, Radio } from "lucide-react";
 
 export default function Swap() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-fade-in">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-fade-in relative z-10">
       
       {/* Visual Header */}
-      <div>
-        <h1 className="font-sans text-2xl font-black text-gray-900 tracking-tight">DeFi Spot Swap Engine</h1>
-        <p className="text-gray-500 font-medium text-xs mt-1">
-          Swap between major digital coins and global currencies instantly. Rates update in real-time.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-cyan-500/20 pb-6">
+        <div>
+          <div className="flex items-center space-x-2 mb-1">
+            <span className="p-1 rounded-lg bg-cyan-950/80 border border-cyan-400/40 text-cyan-400">
+              <ArrowRightLeft className="h-4 w-4" />
+            </span>
+            <span className="text-xs font-mono font-bold text-cyan-400 tracking-widest uppercase">
+              QUANTUM SETTLEMENT PROTOCOL
+            </span>
+          </div>
+          <h1 className="font-orbitron text-2xl sm:text-3xl font-black text-white tracking-wide glow-text-cyan">
+            DEFI SPOT SWAP TERMINAL
+          </h1>
+          <p className="text-slate-300 font-mono text-xs mt-1">
+            Zero-slippage cross-chain and fiat swaps backed by multi-oracle aggregated pricing.
+          </p>
+        </div>
+
+        <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#0A0E1A] border border-cyan-500/30 font-mono text-xs text-cyan-300">
+          <Radio className="h-3.5 w-3.5 text-[#39FF14] animate-pulse" />
+          <span>ROUTING: <strong className="text-white">OPTIMAL PATHWAY</strong></span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -22,64 +39,69 @@ export default function Swap() {
 
         {/* Informative Instructions panel */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-md shadow-gray-100">
-            <h3 className="font-sans font-bold text-gray-900 flex items-center space-x-2 text-sm uppercase tracking-wide mb-4">
-              <Zap className="h-4.5 w-4.5 text-blue-600 animate-pulse" />
-              <span>SmartSwap Swapping Cycle</span>
+          <div className="cyber-card rounded-2xl p-6 relative overflow-hidden">
+            <span className="corner-bracket-tl" />
+            <span className="corner-bracket-tr" />
+            <span className="corner-bracket-bl" />
+            <span className="corner-bracket-br" />
+
+            <h3 className="font-orbitron font-bold text-white flex items-center space-x-2 text-xs uppercase tracking-wider mb-5">
+              <Zap className="h-4 w-4 text-[#00F0FF] animate-pulse" />
+              <span>SWAP EXECUTION CYCLE</span>
             </h3>
 
-            <div className="relative border-l border-gray-100 ml-3.5 pl-5 space-y-5 text-xs text-gray-600 leading-relaxed">
+            <div className="relative border-l border-cyan-500/25 ml-3 pl-5 space-y-6 text-xs text-slate-300 leading-relaxed font-sans">
               
               <div className="relative">
-                <span className="absolute -left-8 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700 font-mono">
+                <span className="absolute -left-7 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-cyan-950 border border-cyan-400 text-[10px] font-bold text-[#00F0FF] font-mono shadow-[0_0_8px_rgba(0,240,255,0.5)]">
                   1
                 </span>
-                <p className="font-bold text-gray-900 mb-1">Lock In Real-time Rate</p>
-                <p>
-                  Input desired conversion quantities. Our system monitors direct global liquidity ratios to compute index valuations dynamically every 2 seconds.
+                <p className="font-orbitron font-bold text-white mb-0.5">Lock Oracle Conversion Rate</p>
+                <p className="text-slate-400 font-mono text-[11px]">
+                  Input asset volume. SmartSwap aggregates live bids and asks across decentralized pools every 2 seconds.
                 </p>
               </div>
 
               <div className="relative">
-                <span className="absolute -left-8 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700 font-mono">
+                <span className="absolute -left-7 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-cyan-950 border border-cyan-400 text-[10px] font-bold text-[#00F0FF] font-mono shadow-[0_0_8px_rgba(0,240,255,0.5)]">
                   2
                 </span>
-                <p className="font-bold text-gray-900 mb-1">Initiate Order Receipt</p>
-                <p>
-                  Press submit to finalize your receipt. This creates a secure pending request with a dynamic depository wallet/bank address configured on the Admin board.
+                <p className="font-orbitron font-bold text-white mb-0.5">Generate Cryptographic Order</p>
+                <p className="text-slate-400 font-mono text-[11px]">
+                  Submit the transaction to lock the quote and generate an escrow deposit slip mapped to the admin custodian.
                 </p>
               </div>
 
               <div className="relative">
-                <span className="absolute -left-8 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700 font-mono">
+                <span className="absolute -left-7 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-cyan-950 border border-cyan-400 text-[10px] font-bold text-[#00F0FF] font-mono shadow-[0_0_8px_rgba(0,240,255,0.5)]">
                   3
                 </span>
-                <p className="font-bold text-gray-900 mb-1">Make Sandbox Asset Deposit</p>
-                <p>
-                  Send your swapped amount to the listed admin deposit destination. For user sandbox testing, standard balances are automatically adjusted after approval.
+                <p className="font-orbitron font-bold text-white mb-0.5">Simulated Liquidity Transfer</p>
+                <p className="text-slate-400 font-mono text-[11px]">
+                  Send your swapped balance. In this sandbox environment, simulated balances adjust automatically upon verification.
                 </p>
               </div>
 
               <div className="relative">
-                <span className="absolute -left-8 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700 font-mono">
+                <span className="absolute -left-7 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-cyan-950 border border-cyan-400 text-[10px] font-bold text-[#00F0FF] font-mono shadow-[0_0_8px_rgba(0,240,255,0.5)]">
                   4
                 </span>
-                <p className="font-bold text-gray-900 mb-1">Administrative Clearing</p>
-                <p>
-                  The administrator confirms deposits on their dashboard and issues immediate dispatch clear. Your target profile balance will then show the exchanged asset.
+                <p className="font-orbitron font-bold text-white mb-0.5">Instant Clearing &amp; Settlement</p>
+                <p className="text-slate-400 font-mono text-[11px]">
+                  The custodian node verifies incoming payment blocks and dispatches payout directly to your registered destination.
                 </p>
               </div>
 
             </div>
           </div>
 
-          <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-5 space-y-2.5">
-            <h4 className="font-sans font-bold text-xs text-blue-900 uppercase tracking-widest flex items-center space-x-1.5Packed">
-              <Info className="h-4 w-4 text-blue-600" />
-              <span>Safety and Settlement Notice</span>
+          <div className="cyber-card rounded-2xl p-5 border border-cyan-500/25 bg-cyan-950/20 space-y-2">
+            <h4 className="font-orbitron font-bold text-xs text-cyan-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <ShieldCheck className="h-4 w-4 text-[#39FF14]" />
+              <span>CUSTODIAL SAFETY DIRECTIVE</span>
             </h4>
-            <p className="text-xs text-blue-800 leading-relaxed font-medium">
-              This is a de-fiat sandbox testing blockchain applet. No real financial credentials or funds are moved. Accounts are seeded with active testing amounts. Feel free to trade up to testing margins.
+            <p className="text-xs text-slate-300 leading-relaxed font-mono">
+              SmartSwap operates with sandboxed multi-asset custody simulation. Test accounts are pre-seeded with test balances so you can experiment with cross-pair liquidity routes.
             </p>
           </div>
         </div>

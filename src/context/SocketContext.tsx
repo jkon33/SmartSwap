@@ -12,38 +12,22 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-const INITIAL_DEFAULT_PRICES: Price[] = [
-  { currencyPair: "BTC/USD", rate: 76925.21, lastUpdated: new Date().toISOString() },
-  { currencyPair: "ETH/USD", rate: 2467.22, lastUpdated: new Date().toISOString() },
-  { currencyPair: "SOL/USD", rate: 100.13, lastUpdated: new Date().toISOString() },
-  { currencyPair: "USDT/USD", rate: 1.0, lastUpdated: new Date().toISOString() },
-  { currencyPair: "USD/EUR", rate: 0.8621, lastUpdated: new Date().toISOString() },
-  { currencyPair: "USD/GBP", rate: 0.7403, lastUpdated: new Date().toISOString() },
-];
-
 export function SocketProvider({ children }: { children: ReactNode }) {
-  const [prices, setPrices] = useState<Price[]>(INITIAL_DEFAULT_PRICES);
+  const [prices, setPrices] = useState<Price[]>([]);
   const [connected, setConnected] = useState(false);
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
-
-    // 1. Load initial prices immediately via REST endpoint with auto-retry
-    const loadPrices = async (attempt = 1) => {
-      try {
-        const initialPrices = await api.swap.getPrices();
-        if (isMounted && Array.isArray(initialPrices) && initialPrices.length > 0) {
+    // 1. Load initial prices immediately via REST endpoint
+    api.swap.getPrices()
+      .then((initialPrices) => {
+        if (initialPrices && initialPrices.length > 0) {
           setPrices(initialPrices);
         }
-      } catch {
-        if (attempt <= 3 && isMounted) {
-          setTimeout(() => loadPrices(attempt + 1), 1500 * attempt);
-        }
-      }
-    };
-
-    loadPrices();
+      })
+      .catch((err) => {
+        console.error("Failed to retrieve initial rates via HTTP:", err);
+      });
 
     // Determine the socket server origin dynamically
     const getSocketOrigin = () => {
@@ -54,31 +38,32 @@ export function SocketProvider({ children }: { children: ReactNode }) {
           if (savedUrl.includes("ais-pre-p632kafgq6545hshnzdulb")) {
             localStorage.removeItem("smartswap_backend_url");
           } else {
+            // Normalize by stripping /api path and trailing slash
             return savedUrl.trim().replace(/\/api\/?$/, "").replace(/\/+$/, "");
           }
         }
       }
 
       // 2. Explicitly check Vite env variable if provided
-      const envSocketUrl = (import.meta as any).env?.VITE_SOCKET_URL;
+      const envSocketUrl = (import.meta as any).env.VITE_SOCKET_URL;
       if (envSocketUrl) {
         return envSocketUrl;
       }
 
-      // 3. Fallback only if running natively in compiled mobile container (Capacitor Android / iOS)
+      // 3. Native Capacitor mobile container check (iOS / Android app shell only)
       if (typeof window !== "undefined") {
-        try {
-          const isNativeMobile = Capacitor.isNativePlatform() && Capacitor.getPlatform() !== "web";
-          if (isNativeMobile) {
-            return "https://ais-dev-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app";
-          }
-        } catch {
-          // ignore
+        const isNativePlatform = 
+          Capacitor.isNativePlatform() ||
+          window.location.origin.startsWith("capacitor://") || 
+          window.location.protocol === "file:";
+
+        if (isNativePlatform) {
+          return "https://ais-dev-p632kafgq6545hshnzdulb-371764684561.europe-west2.run.app";
         }
       }
 
-      // 4. Fallback to current origin for web browsers, AI Studio preview, and localhost
-      if (typeof window !== "undefined" && window.location?.origin) {
+      // 4. Default for all web browser environments (connects directly to same host)
+      if (typeof window !== "undefined" && window.location.origin && !window.location.origin.startsWith("file:")) {
         return window.location.origin;
       }
       return "";

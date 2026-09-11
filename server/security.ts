@@ -155,11 +155,12 @@ export function rateLimiter(options: {
 export function isAllowedOrigin(origin: string | undefined): boolean {
   if (!origin) return true; // Accept postman, curl, or standard server-side requests with missing origins safely
 
-  // Allow localhosts / loopback coordinates
+  // Allow localhosts / loopback coordinates and native schemes
   if (
-    origin.startsWith("http://localhost:") ||
-    origin.startsWith("https://localhost:") ||
-    origin.includes("127.0.0.1")
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("https://localhost") ||
+    origin.includes("127.0.0.1") ||
+    origin.startsWith("capacitor://")
   ) {
     return true;
   }

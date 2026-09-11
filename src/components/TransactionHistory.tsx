@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Transaction } from "../types";
-import { Eye, EyeOff, Calendar, ArrowRight, Hourglass, CheckCircle2, ChevronDown, ChevronUp, Copy, Clock, Key } from "lucide-react";
+import { ArrowRight, Hourglass, CheckCircle2, ChevronDown, ChevronUp, Clock, Copy, Radio, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface TransactionHistoryProps {
@@ -31,23 +31,23 @@ export default function TransactionHistory({
     switch (status) {
       case "pending":
         return (
-          <span className="inline-flex items-center space-x-1 rounded-full bg-amber-50 border border-amber-205 px-2.5 py-1 text-xs font-semibold text-amber-700 animate-pulse">
-            <Clock className="h-3 w-3" />
-            <span>Pending Sync</span>
+          <span className="inline-flex items-center space-x-1.5 rounded-full bg-amber-500/10 border border-[#FFB800]/50 px-2.5 py-0.5 text-[11px] font-mono font-bold text-[#FFB800] shadow-[0_0_8px_rgba(255,184,0,0.3)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#FFB800] animate-ping" />
+            <span>PENDING ORACLE</span>
           </span>
         );
       case "completed":
         return (
-          <span className="inline-flex items-center space-x-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-            <CheckCircle2 className="h-3 w-3" />
-            <span>Dispatched</span>
+          <span className="inline-flex items-center space-x-1.5 rounded-full bg-emerald-500/10 border border-[#39FF14]/50 px-2.5 py-0.5 text-[11px] font-mono font-bold text-[#39FF14] shadow-[0_0_8px_rgba(57,255,20,0.3)]">
+            <CheckCircle2 className="h-3 w-3 text-[#39FF14]" />
+            <span>DISPATCHED</span>
           </span>
         );
       case "failed":
         return (
-          <span className="inline-flex items-center space-x-1 rounded-full bg-rose-50 border border-rose-200 px-2.5 py-1 text-xs font-semibold text-rose-700">
-            <Clock className="h-3 w-3" />
-            <span>Rejected</span>
+          <span className="inline-flex items-center space-x-1.5 rounded-full bg-red-500/10 border border-[#FF0055]/50 px-2.5 py-0.5 text-[11px] font-mono font-bold text-[#FF0055]">
+            <XCircle className="h-3 w-3 text-[#FF0055]" />
+            <span>REJECTED</span>
           </span>
         );
       default:
@@ -57,75 +57,92 @@ export default function TransactionHistory({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 border border-gray-150 rounded-2xl bg-white shadow-sm font-mono text-sm text-gray-400">
-        <Hourglass className="h-8 w-8 text-blue-500 animate-spin mb-3" />
-        <span>Loading exchange transactions...</span>
+      <div className="cyber-card rounded-2xl flex flex-col items-center justify-center p-12 text-cyan-400 font-mono text-xs relative overflow-hidden">
+        <span className="corner-bracket-tl" />
+        <span className="corner-bracket-tr" />
+        <Hourglass className="h-8 w-8 text-[#00F0FF] animate-spin mb-3 drop-shadow-[0_0_8px_#00F0FF]" />
+        <span className="tracking-widest uppercase glow-text-cyan">READING ON-CHAIN ORACLE LEDGER...</span>
       </div>
     );
   }
 
   if (transactions.length === 0) {
     return (
-      <div className="text-center p-12 border border-dashed border-gray-200 rounded-2xl bg-white shadow-sm">
-        <p className="text-slate-400 font-medium mb-1">No transaction history found</p>
-        <p className="text-xs text-gray-500">Initiate your first swap to start trading crypto and fiat!</p>
+      <div className="cyber-card rounded-2xl text-center p-12 relative overflow-hidden border border-cyan-500/20">
+        <span className="corner-bracket-tl" />
+        <span className="corner-bracket-tr" />
+        <span className="corner-bracket-bl" />
+        <span className="corner-bracket-br" />
+        <Radio className="h-8 w-8 text-cyan-400/50 mx-auto mb-3 animate-pulse" />
+        <p className="text-slate-300 font-orbitron font-bold mb-1">NO ON-CHAIN SWAP RECORDS DETECTED</p>
+        <p className="text-xs text-slate-400 font-mono">Execute your initial swap from the Swap Terminal to generate ledger entries.</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-md">
+    <div className="cyber-card rounded-2xl overflow-hidden relative">
+      <span className="corner-bracket-tl" />
+      <span className="corner-bracket-tr" />
+      <span className="corner-bracket-bl" />
+      <span className="corner-bracket-br" />
+
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-105 bg-gray-50/70 p-4 font-sans text-xs font-bold uppercase tracking-wider text-gray-500">
+            <tr className="border-b border-cyan-500/20 bg-[#05060A]/90 p-4 font-orbitron text-[11px] font-bold uppercase tracking-wider text-cyan-300">
               {isAdminView && <th className="p-4">Trader Account</th>}
-              <th className="p-4">Tx Reference ID</th>
-              <th className="p-4">Conversion Execution</th>
-              <th className="p-4">Amount Swapped</th>
-              <th className="p-4">Exchange Rate</th>
-              <th className="p-4">Date</th>
+              <th className="p-4">Tx Reference</th>
+              <th className="p-4">Conversion Vector</th>
+              <th className="p-4">Swapped Quantities</th>
+              <th className="p-4">Oracle Ratio</th>
+              <th className="p-4">Timestamp</th>
               <th className="p-4">Status</th>
               <th className="p-4 text-center">Receipt</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 font-mono text-sm text-gray-700">
-            {transactions.map((tx) => {
+          <tbody className="divide-y divide-cyan-500/10 font-mono text-xs">
+            {transactions.map((tx, idx) => {
               const isExpanded = expandedTxId === tx.id;
               return (
-                <tr key={tx.id} className="hover:bg-slate-50/50 transition">
+                <tr
+                  key={tx.id}
+                  className={`hover:bg-cyan-500/5 transition-colors ${
+                    idx % 2 === 0 ? "bg-[#0A0E1A]/40" : "bg-transparent"
+                  }`}
+                >
                   {isAdminView && (
-                    <td className="p-4 font-sans max-w-[150px] truncate">
-                      <div className="font-semibold text-slate-900">{tx.userEmail}</div>
-                      <div className="text-[10px] text-gray-400">ID: {tx.userId}</div>
+                    <td className="p-4 max-w-[150px] truncate">
+                      <div className="font-bold text-white">{tx.userEmail}</div>
+                      <div className="text-[10px] text-cyan-400/60">ID: {tx.userId}</div>
                     </td>
                   )}
                   <td className="p-4">
-                    <span className="font-mono text-xs font-bold text-slate-800">{tx.id}</span>
+                    <span className="font-bold text-[#00F0FF]">{tx.id}</span>
                   </td>
                   <td className="p-4">
-                    <div className="flex items-center space-x-2 font-sans font-semibold">
-                      <span className="px-2 py-0.5 rounded-md bg-gray-100 border border-gray-205 text-gray-700 text-xs">
+                    <div className="flex items-center space-x-1.5 font-orbitron font-bold">
+                      <span className="px-2 py-0.5 rounded bg-cyan-950/70 border border-cyan-400/40 text-cyan-300 text-[10px]">
                         {tx.fromCurrency}
                       </span>
-                      <ArrowRight className="h-3 w-3 text-gray-400" />
-                      <span className="px-2 py-0.5 rounded-md bg-blue-50 border border-blue-100 text-blue-700 text-xs">
+                      <ArrowRight className="h-3 w-3 text-cyan-400" />
+                      <span className="px-2 py-0.5 rounded bg-fuchsia-950/70 border border-fuchsia-400/40 text-fuchsia-300 text-[10px]">
                         {tx.toCurrency}
                       </span>
                     </div>
                   </td>
                   <td className="p-4">
-                    <div className="text-slate-900 text-xs font-bold">
+                    <div className="text-white font-bold">
                       -{tx.fromAmount} {tx.fromCurrency}
                     </div>
-                    <div className="text-blue-600 font-bold text-xs">
+                    <div className="text-[#39FF14] font-bold glow-text-green">
                       +{tx.toAmount} {tx.toCurrency}
                     </div>
                   </td>
-                  <td className="p-4 text-xs font-semibold text-slate-700">
+                  <td className="p-4 text-slate-300">
                     1 {tx.fromCurrency} = {tx.rate < 0.001 ? tx.rate.toFixed(8) : tx.rate.toFixed(4)} {tx.toCurrency}
                   </td>
-                  <td className="p-4 text-xs text-gray-500 font-sans">
+                  <td className="p-4 text-slate-400">
                     {new Date(tx.createdAt).toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
@@ -137,8 +154,8 @@ export default function TransactionHistory({
                   <td className="p-4 text-center">
                     <button
                       onClick={() => toggleExpand(tx.id)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-150 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition"
-                      title="Inspect Receipt and Addresses details"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-500/30 bg-[#0A0E1A] text-cyan-400 hover:text-white hover:border-cyan-400 hover:shadow-[0_0_8px_rgba(0,240,255,0.4)] transition-all"
+                      title="Inspect Receipt and Node details"
                     >
                       {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
@@ -156,32 +173,32 @@ export default function TransactionHistory({
         if (!isExpanded) return null;
 
         return (
-          <div key={`exp-${tx.id}`} className="bg-slate-50 border-t border-gray-150 p-5 font-mono text-xs grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+          <div key={`exp-${tx.id}`} className="bg-[#05060A]/95 border-t border-cyan-500/20 p-5 font-mono text-xs grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
             {/* Left box: Admin deposit (where user paid) */}
-            <div className="p-4 rounded-xl border border-gray-200 bg-white">
-              <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest block mb-2.5">
-                Admin Depository Detail (Payment Sent To)
+            <div className="p-4 rounded-xl border border-cyan-500/30 bg-[#0A0E1A]">
+              <span className="text-[10px] font-orbitron font-bold text-[#FFB800] uppercase tracking-widest block mb-2.5">
+                ADMIN DEPOSITORY DESTINATION (PAYMENT INBOUND)
               </span>
-              <div className="space-y-1.5 font-mono text-[11px] leading-relaxed">
+              <div className="space-y-2 text-[11px] leading-relaxed">
                 <div>
-                  <span className="text-gray-400">Method Type:</span>{" "}
-                  <span className="font-bold text-slate-900 uppercase">{tx.depositDetails?.type}</span>
+                  <span className="text-slate-500">Method Type:</span>{" "}
+                  <span className="font-bold text-white uppercase">{tx.depositDetails?.type}</span>
                 </div>
                 <div>
-                  <span className="text-gray-400">Currency Target:</span>{" "}
-                  <span className="font-bold text-slate-950 uppercase">{tx.depositDetails?.currency}</span>
+                  <span className="text-slate-500">Currency Target:</span>{" "}
+                  <span className="font-bold text-cyan-400 uppercase">{tx.depositDetails?.currency}</span>
                 </div>
-                <div className="mt-2.5 pt-2 border-t border-gray-100">
-                  <span className="text-gray-400 block mb-1 font-bold">Payout Destination / Address:</span>
+                <div className="mt-2.5 pt-2 border-t border-cyan-500/15">
+                  <span className="text-slate-400 block mb-1 font-bold">Inbound Vault Coordinates:</span>
                   <div className="flex items-center space-x-2">
-                    <span className="font-bold text-slate-800 break-all select-all flex-1 p-2 rounded bg-gray-50 border border-gray-200 text-xs">
+                    <span className="font-bold text-[#00F0FF] break-all select-all flex-1 p-2 rounded-lg bg-[#05060A] border border-cyan-500/30 text-xs">
                       {tx.depositDetails?.addressOrDetails}
                     </span>
                     <button
-                      onClick={() => handleCopyText(tx.depositDetails?.addressOrDetails, "Deposit instructions")}
-                      className="px-2 py-1 bg-slate-900 border text-white rounded text-[10px] font-bold shrink-0 shadow-sm"
+                      onClick={() => handleCopyText(tx.depositDetails?.addressOrDetails, "Deposit address")}
+                      className="px-2.5 py-1.5 bg-cyan-950 border border-cyan-400 text-cyan-300 rounded-lg text-[10px] font-bold hover:bg-cyan-900 transition shadow-[0_0_8px_rgba(0,240,255,0.3)]"
                     >
-                      Copy
+                      COPY
                     </button>
                   </div>
                 </div>
@@ -189,39 +206,27 @@ export default function TransactionHistory({
             </div>
 
             {/* Right box: Customer withdrawal (where payout is sent) */}
-            <div className="p-4 rounded-xl border border-gray-200 bg-white">
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-2.5">
-                Customer Withdraw Method (Swap Dispatched To)
+            <div className="p-4 rounded-xl border border-cyan-500/30 bg-[#0A0E1A]">
+              <span className="text-[10px] font-orbitron font-bold text-[#00F0FF] uppercase tracking-widest block mb-2.5">
+                CUSTOMER PAYOUT DESTINATION (SWAP TARGET)
               </span>
-              <div className="space-y-1.5 font-mono text-[11px] leading-relaxed">
+              <div className="space-y-2 text-[11px] leading-relaxed">
                 <div>
-                  <span className="text-gray-400">Method Profile:</span>{" "}
-                  <span className="font-bold text-slate-900">{tx.withdrawDetails?.label}</span>
+                  <span className="text-slate-500">Registered Destination:</span>{" "}
+                  <span className="font-bold text-white">{tx.withdrawDetails?.label}</span>
                 </div>
-                {tx.withdrawDetails?.address && (
-                  <div>
-                    <span className="text-gray-400">Crypto Address:</span>{" "}
-                    <span className="font-bold text-slate-800 break-all bg-gray-50 border border-gray-100 p-1.5 rounded inline-block select-all w-full">
-                      {tx.withdrawDetails?.address}
-                    </span>
-                  </div>
-                )}
-                {tx.withdrawDetails?.bankName && (
-                  <div className="p-2 rounded bg-slate-50 border border-slate-100 mt-2 space-y-1">
-                    <div>
-                      <span className="text-gray-400">Bank Name:</span>{" "}
-                      <span className="font-bold text-slate-900">{tx.withdrawDetails?.bankName}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Account Number:</span>{" "}
-                      <span className="font-bold text-slate-900">{tx.withdrawDetails?.accountNumber}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Routing Sort Code:</span>{" "}
-                      <span className="font-bold text-slate-900">{tx.withdrawDetails?.routingNumber}</span>
-                    </div>
-                  </div>
-                )}
+                <div>
+                  <span className="text-slate-500">Target Currency:</span>{" "}
+                  <span className="font-bold text-[#39FF14] uppercase">{tx.toCurrency}</span>
+                </div>
+                <div className="mt-2.5 pt-2 border-t border-cyan-500/15">
+                  <span className="text-slate-400 block mb-1 font-bold">Settlement Details:</span>
+                  <span className="block font-bold text-slate-300 break-all p-2 rounded-lg bg-[#05060A] border border-cyan-500/30 text-xs">
+                    {tx.withdrawDetails?.address || tx.withdrawDetails?.accountNumber 
+                      ? `${tx.withdrawDetails?.address || tx.withdrawDetails?.accountNumber} (${tx.withdrawDetails?.bankName || "Wallet"})`
+                      : tx.withdrawDetails?.label}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
