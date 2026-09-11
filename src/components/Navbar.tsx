@@ -11,7 +11,6 @@ import {
   ArrowRightLeft,
   LayoutDashboard,
   Wallet,
-  Home,
   User,
 } from "lucide-react";
 
@@ -54,52 +53,40 @@ export default function Navbar() {
         </div>
 
         {/* Desktop & Laptop navigation floating pill */}
-        <nav className="hidden md:flex items-center space-x-1 lg:space-x-1.5 px-2 lg:px-3 py-1.5 rounded-xl bg-[#05060A]/80 border border-cyan-500/20">
-          <Link
-            to="/"
-            className={`px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold tracking-wider uppercase transition-all ${
-              isActive("/")
-                ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.4)]"
-                : "text-slate-300 hover:text-cyan-300 hover:bg-white/5"
-            }`}
-          >
-            Home
-          </Link>
-          {user && (
-            <>
-              <Link
-                to="/dashboard"
-                className={`px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold tracking-wider uppercase transition-all ${
-                  isActive("/dashboard")
-                    ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.4)]"
-                    : "text-slate-300 hover:text-cyan-300 hover:bg-white/5"
-                }`}
-              >
-                Traders Portal
-              </Link>
-              <Link
-                to="/swap"
-                className={`px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold tracking-wider uppercase transition-all ${
-                  isActive("/swap")
-                    ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.4)]"
-                    : "text-slate-300 hover:text-cyan-300 hover:bg-white/5"
-                }`}
-              >
-                Swap Terminal
-              </Link>
-              <Link
-                to="/profile"
-                className={`px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold tracking-wider uppercase transition-all ${
-                  isActive("/profile")
-                    ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.4)]"
-                    : "text-slate-300 hover:text-cyan-300 hover:bg-white/5"
-                }`}
-              >
-                Payout Gateways
-              </Link>
-            </>
-          )}
-        </nav>
+        {user && (
+          <nav className="hidden md:flex items-center space-x-1 lg:space-x-1.5 px-2 lg:px-3 py-1.5 rounded-xl bg-[#05060A]/80 border border-cyan-500/20">
+            <Link
+              to="/dashboard"
+              className={`px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold tracking-wider uppercase transition-all ${
+                isActive("/dashboard")
+                  ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                  : "text-slate-300 hover:text-cyan-300 hover:bg-white/5"
+              }`}
+            >
+              Traders Portal
+            </Link>
+            <Link
+              to="/swap"
+              className={`px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold tracking-wider uppercase transition-all ${
+                isActive("/swap")
+                  ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                  : "text-slate-300 hover:text-cyan-300 hover:bg-white/5"
+              }`}
+            >
+              Swap Terminal
+            </Link>
+            <Link
+              to="/profile"
+              className={`px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold tracking-wider uppercase transition-all ${
+                isActive("/profile")
+                  ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                  : "text-slate-300 hover:text-cyan-300 hover:bg-white/5"
+              }`}
+            >
+              Payout Gateways
+            </Link>
+          </nav>
+        )}
 
         {/* Action triggers (Desktop) */}
         <div className="hidden sm:flex items-center space-x-2 lg:space-x-3">
@@ -229,19 +216,6 @@ export default function Navbar() {
 
           {/* Navigation Links list */}
           <div className="space-y-1.5 font-rajdhani text-sm font-bold tracking-wider uppercase">
-            <Link
-              to="/"
-              onClick={closeMobileMenu}
-              className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all ${
-                isActive("/")
-                  ? "bg-cyan-500/20 text-[#00F0FF] border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.3)]"
-                  : "text-slate-300 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Home className="h-4 w-4 text-[#00F0FF]" />
-              <span>Home Hub</span>
-            </Link>
-
             {user ? (
               <>
                 <Link
